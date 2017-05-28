@@ -16,3 +16,4 @@ but now only a few features have been implemented.
     ...
 
 ## Contributions
+Your contributions are welcome anytime.
