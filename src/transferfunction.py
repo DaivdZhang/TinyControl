@@ -1,10 +1,13 @@
-from src.lti import LinearTimeInvariant as LTI
+import src.lti
 from copy import deepcopy
 import numpy as np
 import sympy
 
 
-class SISO(LTI):
+# TODO: trans function of MIMO
+# TODO: improve error msg of class SISO
+
+class SISO(src.lti.LinearTimeInvariant):
     def __init__(self, *args):
         length = len(args)
         if length == 2:
@@ -40,7 +43,8 @@ class SISO(LTI):
         gs = cs / rs
         return gs.__str__()
 
-    __repr__ = __str__
+    def __repr__(self):
+        return '0x{0:x}: {1:s}'.format(id(self), self.__str__())
 
     def __neg__(self):
         num = deepcopy(self.num)
@@ -53,16 +57,11 @@ class SISO(LTI):
         :param other:
         :type other: SISO
         :return:
-        :rtype:
+        :rtype: SISO
         """
-        if self.dt == other.dt or (self.dt is not None and other.dt is None):
-            dt = self.dt
-        elif self.dt is None and other.dt is not None:
-            dt = other.dt
-        else:
-            raise ValueError("")
+        dt = get_dt(self, other)
 
-        if all(self.den == other.den):
+        if np.array_equal(self.den, other.den):
             return SISO(np.polyadd(self.num, other.num), self.den, dt)
 
         den = np.convolve(self.den, other.den)
@@ -83,7 +82,7 @@ class SISO(LTI):
         :param other:
         :type other: SISO
         :return:
-        :rtype:
+        :rtype: SISO
         """
         num = np.convolve(self.num, other.num)
         den = np.convolve(self.den, other.den)
@@ -101,12 +100,57 @@ class SISO(LTI):
         num = np.polydiv(num, r)[0]
         den = np.polydiv(den, r)[0]
 
-
-        if self.dt == other.dt or (self.dt is not None and other.dt is None):
-            dt = self.dt
-        elif self.dt is None and other.dt is not None:
-            dt = other.dt
-        else:
-            raise ValueError("")
+        dt = get_dt(self, other)
 
         return SISO(num, den, dt)
+
+    __rmul__ = __mul__
+
+    def pole(self):
+        return np.roots(self.den)
+
+    def zeros(self):
+        return np.roots(self.num)
+
+    def feedback(self, other=1, sign=1):
+        if other == 1:
+            other = SISO([1], [1], self.dt)
+
+        dt = get_dt(self, other)
+
+        num = np.convolve(self.num, other.den)
+        den = np.polyadd(np.convolve(self.num, other.num), np.convolve(self.den, other.den) * sign)
+
+        return SISO(num, den, dt)
+
+
+def get_dt(sys1, sys2):
+    """
+
+    :param sys1:
+    :type sys1: SISO
+    :param sys2:
+    :type sys2: SISO
+    :return:
+    :rtype:
+    """
+    if sys1.dt == sys2.dt or (sys1.dt is not None and sys2.dt is None):
+        dt = sys1.dt
+    elif sys1.dt is None and sys2.dt is not None:
+        dt = sys2.dt
+    else:
+        raise ValueError(
+            'Expected the same sampling time. got sys1:{0} sys2:{1}'.format(sys1.dt, sys2.dt))
+    return dt
+
+
+def tf(*args):
+    length = len(args)
+    if length == 2 or length == 3:
+        return SISO(args)
+    elif length == 1:
+        try:
+            sys =  SISO(args)
+            return sys
+        except ValueError as e:
+            print(e)
