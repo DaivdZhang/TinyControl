@@ -16,3 +16,19 @@ class LinearTimeInvariant(object):
 
     def issiso(self):
         return self.outputs == 1 and self.inputs == 1
+
+
+def isctime(sys_, strict=False):
+    if sys_.dt is None:
+        return False if strict else True
+    return sys_.dt == 0
+
+
+def isdtime(sys_, strict=False):
+    if sys_.dt is None:
+        return False if strict else True
+    return sys_.dt > 0
+
+
+def issiso(sys_):
+    return sys_.outputs == 1 and sys_.inputs == 1

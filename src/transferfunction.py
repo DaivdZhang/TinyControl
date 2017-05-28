@@ -5,10 +5,8 @@ import sympy
 
 # TODO: trans function of MIMO
 # TODO: improve error msg of class SISO
-# TODO: implement zpk function
-# TODO: simplify the trans function when calling __init__
 
-__all__ = ["SISO", "tf"]
+__all__ = ["SISO", "tf", "zpk"]
 
 
 class SISO(src.lti.LinearTimeInvariant):
@@ -32,6 +30,12 @@ class SISO(src.lti.LinearTimeInvariant):
 
         num = np.array(num)
         den = np.array(den)
+        _, cs, rs = _siso_to_symbol(num, den)
+        r = _poly_gcd(cs, rs)
+        if r is not None:
+            num = np.polydiv(num, r)[0]
+            den = np.polydiv(den, r)[0]
+
         super().__init__(1, 1, dt)
         self.num = num
         self.den = den
@@ -90,11 +94,10 @@ class SISO(src.lti.LinearTimeInvariant):
         den = np.convolve(self.den, other.den)
 
         _, cs, rs = _siso_to_symbol(num, den)
-        r = sympy.gcd(cs, rs)
-        r = sympy.Poly(r)
-        r = np.array(r.all_coeffs(), dtype=float)
-        num = np.polydiv(num, r)[0]
-        den = np.polydiv(den, r)[0]
+        r = _poly_gcd(cs, rs)
+        if r is not None:
+            num = np.polydiv(num, r)[0]
+            den = np.polydiv(den, r)[0]
 
         dt = _get_dt(self, other)
 
@@ -105,7 +108,7 @@ class SISO(src.lti.LinearTimeInvariant):
     def pole(self):
         return np.roots(self.den)
 
-    def zeros(self):
+    def zero(self):
         return np.roots(self.num)
 
     def feedback(self, other=1, sign=1):
@@ -152,13 +155,52 @@ def _siso_to_symbol(num, den):
     return gs, cs, rs
 
 
+def _poly_gcd(a, b):
+    s = sympy.Symbol('s')
+    r = sympy.gcd(a, b)
+    if r.is_Number:
+        return None
+    p = sympy.polys.polytools.poly(r)
+    n = 0
+    r = []
+    while True:
+        k = sympy.polys.polytools.Poly.coeff_monomial(p, s**n)
+        if k.is_integer:
+            k = int(k)
+        elif k.is_real:
+            k = float(k)
+        elif k.is_complex:
+            k = complex(k)
+        else:
+            raise ValueError('unexpected coeff type')
+
+        if k == 0 and n != 0:
+            break
+        else:
+            r.insert(0, k)
+        n += 1
+    r = np.array(r)
+    return r
+
+
 def tf(*args):
     length = len(args)
     if length == 2 or length == 3:
         return SISO(*args)
     elif length == 1:
         try:
-            sys = SISO(*args)
-            return sys
+            sys_ = SISO(*args)
+            return sys_
         except ValueError as e:
             print(e)
+
+
+def zpk(z, p, k):
+    num = np.array([k])
+    for zi in z:
+        num = np.convolve(num, np.array([1, -zi]))
+
+    den = np.array([1])
+    for pi in p:
+        den = np.convolve(den, np.array([1, -pi]))
+    return SISO(num, den)
