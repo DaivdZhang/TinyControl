@@ -6,9 +6,10 @@ but now only a few features have been implemented.
 + Python 3
 + Numpy
 + Sympy
++ Matplotlib
 
 ## TODO List
-- [ ] pole-zero map
+- [x] pole-zero map
 - [ ] root-locus method
 - [ ] time response
 - [ ] frequency respone

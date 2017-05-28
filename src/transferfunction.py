@@ -23,7 +23,7 @@ class SISO(src.lti.LinearTimeInvariant):
                 den = args[0].den
                 dt = args[0].dt
             else:
-                raise ValueError("type of arg should be SISO, got %s".format(type(args[0])))
+                raise TypeError("type of arg should be SISO, got %s".format(type(args[0])))
 
         else:
             raise ValueError('1, 2 or 3 arg(s) expected. received %s'.format(length))
