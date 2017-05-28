@@ -1,10 +1,8 @@
 class LinearTimeInvariant(object):
-
     def __init__(self, inputs=1, outputs=1, dt=None):
         self.inputs = inputs
         self.outputs = outputs
         self.dt = dt
-
 
     def isctime(self, strict=False):
         if self.dt is None:

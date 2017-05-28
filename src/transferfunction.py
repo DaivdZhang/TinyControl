@@ -3,9 +3,13 @@ from copy import deepcopy
 import numpy as np
 import sympy
 
-
 # TODO: trans function of MIMO
 # TODO: improve error msg of class SISO
+# TODO: implement zpk function
+# TODO: simplify the trans function when calling __init__
+
+__all__ = ["SISO", "tf"]
+
 
 class SISO(src.lti.LinearTimeInvariant):
     def __init__(self, *args):
@@ -21,10 +25,10 @@ class SISO(src.lti.LinearTimeInvariant):
                 den = args[0].den
                 dt = args[0].dt
             else:
-                raise ValueError('1, 2 or 3 args expected. received %s' % length)
+                raise ValueError("type of arg should be SISO, got %s".format(type(args[0])))
 
         else:
-            raise ValueError('1, 2 or 3 args expected. received %s' % length)
+            raise ValueError('1, 2 or 3 arg(s) expected. received %s'.format(length))
 
         num = np.array(num)
         den = np.array(den)
@@ -33,18 +37,16 @@ class SISO(src.lti.LinearTimeInvariant):
         self.den = den
 
     def __str__(self):
-        s = sympy.Symbol('s')
-        cs = 0
-        rs = 0
-        for i, n in enumerate(self.num[::-1]):
-            cs += n * s**i
-        for i, n in enumerate(self.den[::-1]):
-            rs += n * s**i
-        gs = cs / rs
+        gs, _, _ = _siso_to_symbol(self.num, self.den)
         return gs.__str__()
 
     def __repr__(self):
         return '0x{0:x}: {1:s}'.format(id(self), self.__str__())
+
+    def __eq__(self, other):
+        if not isinstance(other, SISO):
+            return False
+        return np.array_equal(self.num, other.num) and np.array_equal(self.den, other.den)
 
     def __neg__(self):
         num = deepcopy(self.num)
@@ -59,7 +61,7 @@ class SISO(src.lti.LinearTimeInvariant):
         :return:
         :rtype: SISO
         """
-        dt = get_dt(self, other)
+        dt = _get_dt(self, other)
 
         if np.array_equal(self.den, other.den):
             return SISO(np.polyadd(self.num, other.num), self.den, dt)
@@ -87,20 +89,14 @@ class SISO(src.lti.LinearTimeInvariant):
         num = np.convolve(self.num, other.num)
         den = np.convolve(self.den, other.den)
 
-        s = sympy.Symbol('s')
-        cs = 0
-        rs = 0
-        for i, n in enumerate(num[::-1]):
-            cs += n * s**i
-        for i, n in enumerate(den[::-1]):
-            rs += n * s**i
+        _, cs, rs = _siso_to_symbol(num, den)
         r = sympy.gcd(cs, rs)
         r = sympy.Poly(r)
         r = np.array(r.all_coeffs(), dtype=float)
         num = np.polydiv(num, r)[0]
         den = np.polydiv(den, r)[0]
 
-        dt = get_dt(self, other)
+        dt = _get_dt(self, other)
 
         return SISO(num, den, dt)
 
@@ -116,7 +112,7 @@ class SISO(src.lti.LinearTimeInvariant):
         if other == 1:
             other = SISO([1], [1], self.dt)
 
-        dt = get_dt(self, other)
+        dt = _get_dt(self, other)
 
         num = np.convolve(self.num, other.den)
         den = np.polyadd(np.convolve(self.num, other.num), np.convolve(self.den, other.den) * sign)
@@ -124,7 +120,7 @@ class SISO(src.lti.LinearTimeInvariant):
         return SISO(num, den, dt)
 
 
-def get_dt(sys1, sys2):
+def _get_dt(sys1, sys2):
     """
 
     :param sys1:
@@ -144,13 +140,25 @@ def get_dt(sys1, sys2):
     return dt
 
 
+def _siso_to_symbol(num, den):
+    s = sympy.Symbol('s')
+    cs = 0
+    rs = 0
+    for i, n in enumerate(num[::-1]):
+        cs += n * s**i
+    for i, n in enumerate(den[::-1]):
+        rs += n * s**i
+    gs = cs / rs
+    return gs, cs, rs
+
+
 def tf(*args):
     length = len(args)
     if length == 2 or length == 3:
-        return SISO(args)
+        return SISO(*args)
     elif length == 1:
         try:
-            sys =  SISO(args)
+            sys = SISO(*args)
             return sys
         except ValueError as e:
             print(e)
