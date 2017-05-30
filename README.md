@@ -10,9 +10,12 @@ but now only a few features have been implemented.
 
 ## TODO List
 - [x] pole-zero map
-- [ ] root-locus method
-- [ ] time response
+- [x] root-locus method
+- [x] time response
 - [ ] frequency respone
+- [ ] add more features to time response
+- [ ] improve the accuracy of the rlocus func
+- [ ] improve performance  
     
     ...
 
