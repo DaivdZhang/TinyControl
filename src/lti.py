@@ -1,3 +1,6 @@
+__all__ = ['LinearTimeInvariant']
+
+
 class LinearTimeInvariant(object):
     def __init__(self, inputs=1, outputs=1, dt=None):
         self.inputs = inputs

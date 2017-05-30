@@ -1,7 +1,7 @@
 import src.lti
 from copy import deepcopy
 import numpy as np
-import sympy
+import sympy as sym
 
 # TODO: trans function of MIMO
 # TODO: improve error msg of class SISO
@@ -144,7 +144,7 @@ def _get_dt(sys1, sys2):
 
 
 def _siso_to_symbol(num, den):
-    s = sympy.Symbol('s')
+    s = sym.Symbol('s')
     cs = 0
     rs = 0
     for i, n in enumerate(num[::-1]):
@@ -156,15 +156,15 @@ def _siso_to_symbol(num, den):
 
 
 def _poly_gcd(a, b):
-    s = sympy.Symbol('s')
-    r = sympy.gcd(a, b)
+    s = sym.Symbol('s')
+    r = sym.gcd(a, b)
     if r.is_Number:
-        return None
-    p = sympy.polys.polytools.poly(r)
+        return np.array([r], dtype=float)
+    p = sym.polys.polytools.poly(r)
     n = 0
     r = []
     while True:
-        k = sympy.polys.polytools.Poly.coeff_monomial(p, s**n)
+        k = sym.polys.polytools.Poly.coeff_monomial(p, s**n)
         if k.is_integer:
             k = int(k)
         elif k.is_real:

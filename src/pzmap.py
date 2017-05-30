@@ -1,5 +1,5 @@
-from src.transferfunction import SISO
-from src.lti import LinearTimeInvariant as LTI
+from .transferfunction import SISO
+from .lti import LinearTimeInvariant as LTI
 from matplotlib import pyplot as plt
 import numpy as np
 
