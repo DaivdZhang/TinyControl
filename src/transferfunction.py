@@ -1,4 +1,4 @@
-import src.lti
+from .lti import LinearTimeInvariant
 from copy import deepcopy
 import numpy as np
 import sympy as sym
@@ -9,7 +9,7 @@ import sympy as sym
 __all__ = ["SISO", "tf", "zpk"]
 
 
-class SISO(src.lti.LinearTimeInvariant):
+class SISO(LinearTimeInvariant):
     def __init__(self, *args):
         length = len(args)
         if length == 2:
@@ -118,7 +118,7 @@ class SISO(src.lti.LinearTimeInvariant):
         dt = _get_dt(self, other)
 
         num = np.convolve(self.num, other.den)
-        den = np.polyadd(np.convolve(self.num, other.num), np.convolve(self.den, other.den) * sign)
+        den = np.polyadd(np.convolve(self.num, other.num), np.convolve(self.den, other.den)*sign)
 
         return SISO(num, den, dt)
 
@@ -148,10 +148,10 @@ def _siso_to_symbol(num, den):
     cs = 0
     rs = 0
     for i, n in enumerate(num[::-1]):
-        cs += n * s**i
+        cs += n*s**i
     for i, n in enumerate(den[::-1]):
-        rs += n * s**i
-    gs = cs / rs
+        rs += n*s**i
+    gs = cs/rs
     return gs, cs, rs
 
 

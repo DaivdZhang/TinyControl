@@ -1,5 +1,5 @@
-from src.lti import LinearTimeInvariant as LTI
-from src.transferfunction import SISO, _siso_to_symbol
+from .lti import LinearTimeInvariant as LTI
+from .transferfunction import SISO, _siso_to_symbol
 import numpy as np
 import sympy as sym
 from matplotlib import pyplot as plt
@@ -18,9 +18,9 @@ def _get_cs(sys_, input_signal):
     :rtype: sym.Add
     """
     s = sym.Symbol('s')
-    signal_table = {'step': 1 / s, 'impulse': 1, '0': 0, 'ramp': 1 / s**2}
+    signal_table = {'step': 1/s, 'impulse': 1, '0': 0, 'ramp': 1/s**2}
     gs, *_ = _siso_to_symbol(sys_.num, sys_.den)
-    cs = gs * signal_table[input_signal]
+    cs = gs*signal_table[input_signal]
     return cs
 
 
