@@ -32,7 +32,7 @@ class TestSISO(TestCase):
         s1 = SISO([1], [1, 0])
         s2 = SISO([2, 0], [1, 4, 3])
         s3 = SISO([2], [1, 4, 3])
-        self.assertEqual(s1 * s2, s3)
+        self.assertEqual(s1*s2, s3)
 
     def test_pole(self):
         s = SISO([1, 2], [1, 2, 1])

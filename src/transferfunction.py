@@ -1,7 +1,7 @@
-import src.lti
+from .lti import LinearTimeInvariant
 from copy import deepcopy
 import numpy as np
-import sympy
+import sympy as sym
 
 # TODO: trans function of MIMO
 # TODO: improve error msg of class SISO
@@ -9,7 +9,7 @@ import sympy
 __all__ = ["SISO", "tf", "zpk"]
 
 
-class SISO(src.lti.LinearTimeInvariant):
+class SISO(LinearTimeInvariant):
     def __init__(self, *args):
         length = len(args)
         if length == 2:
@@ -23,7 +23,7 @@ class SISO(src.lti.LinearTimeInvariant):
                 den = args[0].den
                 dt = args[0].dt
             else:
-                raise ValueError("type of arg should be SISO, got %s".format(type(args[0])))
+                raise TypeError("type of arg should be SISO, got %s".format(type(args[0])))
 
         else:
             raise ValueError('1, 2 or 3 arg(s) expected. received %s'.format(length))
@@ -118,7 +118,7 @@ class SISO(src.lti.LinearTimeInvariant):
         dt = _get_dt(self, other)
 
         num = np.convolve(self.num, other.den)
-        den = np.polyadd(np.convolve(self.num, other.num), np.convolve(self.den, other.den) * sign)
+        den = np.polyadd(np.convolve(self.num, other.num), np.convolve(self.den, other.den)*sign)
 
         return SISO(num, den, dt)
 
@@ -144,27 +144,27 @@ def _get_dt(sys1, sys2):
 
 
 def _siso_to_symbol(num, den):
-    s = sympy.Symbol('s')
+    s = sym.Symbol('s')
     cs = 0
     rs = 0
     for i, n in enumerate(num[::-1]):
-        cs += n * s**i
+        cs += n*s**i
     for i, n in enumerate(den[::-1]):
-        rs += n * s**i
-    gs = cs / rs
+        rs += n*s**i
+    gs = cs/rs
     return gs, cs, rs
 
 
 def _poly_gcd(a, b):
-    s = sympy.Symbol('s')
-    r = sympy.gcd(a, b)
+    s = sym.Symbol('s')
+    r = sym.gcd(a, b)
     if r.is_Number:
-        return None
-    p = sympy.polys.polytools.poly(r)
+        return np.array([r], dtype=float)
+    p = sym.polys.polytools.poly(r)
     n = 0
     r = []
     while True:
-        k = sympy.polys.polytools.Poly.coeff_monomial(p, s**n)
+        k = sym.polys.polytools.Poly.coeff_monomial(p, s**n)
         if k.is_integer:
             k = int(k)
         elif k.is_real:

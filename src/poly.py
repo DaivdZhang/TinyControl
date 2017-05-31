@@ -1,5 +1,7 @@
 import numpy as np
 
+__all__ = ['conv', 'deconv', 'poly', 'roots']
+
 
 def conv(*args):
     args = [np.array(i) for i in args]
