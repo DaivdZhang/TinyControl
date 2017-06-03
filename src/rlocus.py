@@ -4,6 +4,7 @@ from src.pzmap import pzmap
 import numpy as np
 from matplotlib import pyplot as plt
 from functools import partial
+import operator
 
 __all__ = ["rlocus"]
 
@@ -14,34 +15,27 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
     :param kvect:
     :type kvect: array like
     :param sys_:
-    :type sys_: SISO
+    :type sys_: SISO, LTI
     :param plot:
     :type plot: bool
     :return:
     :rtype:
     """
-    num, den = np.poly1d(sys_.num), np.poly1d(sys_.den)
+    if not isinstance(sys_, SISO) and isinstance(sys_, LTI):
+        raise NotImplementedError('rlocus is only for SISO system now')
+
     ol_gains = np.linspace(0, 100, 10000) if kvect is None else kvect
 
-    def cal_roots(k, nump, denp):
-        p_ = denp + k*nump
-        r = np.roots(p_)
-        return np.sort(r)
-
-    cal_roots_p = partial(cal_roots, nump=num, denp=den)
-    roots = list(map(cal_roots_p, ol_gains))
-    roots = np.array(roots)
-
+    roots = _cal_roots(sys_, ol_gains)
     roots = _sort_roots(roots)
-    roots = np.vstack(roots)
 
     if plot:
         plt.axvline(x=0, color='black')
         plt.axhline(y=0, color='black')
-        try:
+        if 'xlim' in kwargs.keys():
             plt.xlim(*kwargs['xlim'])
-        except KeyError:
-            pass
+        if 'ylim' in kwargs.keys():
+            plt.ylim(*kwargs['ylim'])
         plt.plot(roots.real, roots.imag, color='red')
         p, z = pzmap(sys_, plot=False)
         plt.scatter(np.real(z), np.imag(z), s=50, marker='o', color='#069af3')
@@ -51,19 +45,26 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
         plt.draw()
 
 
+def _cal_roots(sys_, kvect):
+    def _cal_k_roots(k, nump, denp):
+        p_ = denp + k*nump
+        r = np.roots(p_)
+        return np.sort(r)
+
+    cal_roots_p = partial(_cal_k_roots, nump=np.poly1d(sys_.num), denp=np.poly1d(sys_.den))
+    roots = tuple(map(cal_roots_p, kvect))
+    roots = np.array(roots)
+    return roots
+
+
 def _sort_roots(roots):
     sorted_ = np.zeros_like(roots)
     sorted_[0] = roots[0]
     pre_row = sorted_[0]
     for n, row in enumerate(roots[1:, :]):
-        n += 1
-        _ = [np.abs(i - pre_row) for i in row]
-        _ = np.array([i.argmin() for i in _])
-        pi = -1
-        for i, e in zip(_, row):
-            if pi == i:
-                i = i - 1 if row.shape[0] - 1 == i else i + 1
-            sorted_[n][i] = e
-            pi = i
-        pre_row = sorted_[n, :]
+        _ = (np.abs(i - pre_row) for i in row)
+        _ = [i.argmin() for i in _]
+        _ = [i[-1] for i in sorted(zip(_, row), key=operator.itemgetter(0))]
+        sorted_[n + 1] = np.array(_)
+        pre_row = sorted_[n + 1, :]
     return sorted_

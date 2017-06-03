@@ -112,6 +112,15 @@ class SISO(LinearTimeInvariant):
         return np.roots(self.num)
 
     def feedback(self, other=1, sign=1):
+        """
+
+        :param other:
+        :type other: SISO, int
+        :param sign:
+        :type sign: int
+        :return:
+        :rtype:
+        """
         if other == 1:
             other = SISO([1], [1], self.dt)
 

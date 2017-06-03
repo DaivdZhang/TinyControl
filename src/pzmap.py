@@ -7,6 +7,17 @@ __all__ = ["pzmap"]
 
 
 def pzmap(sys_, title='pole-zero map', plot=True):
+    """
+
+    :param sys_:
+    :type sys_: src.transferfunction.SISO
+    :param title:
+    :type title: str
+    :param plot:
+    :type plot: bool
+    :return:
+    :rtype: Tuple[numpy.ndarray, numpy.ndarray]
+    """
     if isinstance(sys_, LTI):
         if not isinstance(sys_, SISO):
             raise NotImplementedError('pzmap currently only for SISO')
