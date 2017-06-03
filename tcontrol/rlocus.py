@@ -1,6 +1,6 @@
-from src.lti import LinearTimeInvariant as LTI
-from src.transferfunction import SISO
-from src.pzmap import pzmap
+from .lti import LinearTimeInvariant as LTI
+from .transferfunction import SISO
+from .pzmap import pzmap
 import numpy as np
 from matplotlib import pyplot as plt
 from functools import partial
@@ -36,6 +36,7 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
             plt.xlim(*kwargs['xlim'])
         if 'ylim' in kwargs.keys():
             plt.ylim(*kwargs['ylim'])
+
         plt.plot(roots.real, roots.imag, color='red')
         p, z = pzmap(sys_, plot=False)
         plt.scatter(np.real(z), np.imag(z), s=50, marker='o', color='#069af3')
@@ -43,6 +44,8 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
         plt.grid()
         plt.title('Root Locus')
         plt.draw()
+
+    return roots, kvect
 
 
 def _cal_roots(sys_, kvect):

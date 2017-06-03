@@ -1,5 +1,5 @@
 from unittest import TestCase
-from src.transferfunction import SISO, tf, zpk
+from tcontrol.transferfunction import SISO, tf, zpk
 import numpy as np
 
 

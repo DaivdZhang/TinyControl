@@ -1,23 +1,23 @@
-import src
+import tcontrol
 from matplotlib import pyplot as plt
 from unittest import TestCase
 
 
 class TestTimeResponse(TestCase):
     def test_step(self):
-        system = src.tf([5, 25, 30], [1, 6, 10, 8])
+        system = tcontrol.tf([5, 25, 30], [1, 6, 10, 8])
         plt.figure(1)
-        src.step(system)
+        tcontrol.step(system)
         plt.show()
 
     def test_ramp(self):
-        system = src.tf([5, 25, 30], [1, 6, 10, 8])
+        system = tcontrol.tf([5, 25, 30], [1, 6, 10, 8])
         plt.figure(2)
-        src.ramp(system)
+        tcontrol.ramp(system)
         plt.show()
 
     def test_impulse(self):
-        system = src.tf([5, 25, 30], [1, 6, 10, 8])
+        system = tcontrol.tf([5, 25, 30], [1, 6, 10, 8])
         plt.figure(3)
-        src.impulse(system)
+        tcontrol.impulse(system)
         plt.show()

@@ -1,6 +1,6 @@
 from unittest import TestCase
-from src.transferfunction import SISO
-from src.rlocus import rlocus
+from tcontrol.transferfunction import SISO
+from tcontrol.rlocus import rlocus
 from matplotlib import pyplot as plt
 
 

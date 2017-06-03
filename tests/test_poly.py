@@ -1,5 +1,6 @@
 from unittest import TestCase
-from src.poly import *
+from tcontrol.poly import *
+import numpy as np
 
 
 class TestPoly(TestCase):

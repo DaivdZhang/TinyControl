@@ -1,6 +1,6 @@
 from unittest import TestCase
-from src.pzmap import pzmap
-from src.transferfunction import tf
+from tcontrol.pzmap import pzmap
+from tcontrol.transferfunction import tf
 
 
 class TestPzmap(TestCase):
