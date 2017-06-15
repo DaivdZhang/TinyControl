@@ -114,9 +114,10 @@ class SISO(LinearTimeInvariant):
     def feedback(self, other=1, sign=1):
         """
 
-        :param other:
-        :type other: SISO, int
-        :param sign:
+        :param other: the transfer function of the feedback path
+        :type other: SISO | int
+        :param sign: if sign is 1 function will create the negative feedback. otherwise the positive
+                     feedback
         :type sign: int
         :return:
         :rtype:

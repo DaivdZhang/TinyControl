@@ -20,4 +20,11 @@ def poly(p):
 
 
 def roots(p):
+    """
+
+    :param p:
+    :type p: numpy.ndarray
+    :return:
+    :rtype: numpy.ndarray
+    """
     return np.roots(p)

@@ -17,5 +17,5 @@ class TestPoly(TestCase):
         self.assertEqual(all(ret == np.array([1, 1, 1, 1])), True)
 
     def test_roots(self):
-        ret = roots([1, 0, -1])
+        ret = roots(np.array([1, 0, -1]))
         self.assertEqual(all(ret == np.array([1, -1])), True)

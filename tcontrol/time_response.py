@@ -3,6 +3,7 @@ from .transferfunction import SISO, _siso_to_symbol
 import numpy as np
 import sympy as sym
 from matplotlib import pyplot as plt
+from functools import partial
 
 __all__ = ['impulse', 'step', 'ramp']
 
@@ -42,9 +43,10 @@ def _ilaplace(expr):
     for i in cs.args:
         tmp += i
     if expr.equals(tmp):
-        ct = 0
-        for i in tmp.args:
-            ct += inverse_laplace_transform(sym.nsimplify(i, tolerance=0.01, rational=True), s, t)
+        polys = [sym.nsimplify(i, tolerance=0.001, rational=True) for i in tmp.args]
+        ilaplace_p = partial(inverse_laplace_transform, s=s, t=t)
+        polys = [ilaplace_p(i) for i in polys]
+        ct = sum(polys)
     else:
         ct = inverse_laplace_transform(cs, s, t)
 

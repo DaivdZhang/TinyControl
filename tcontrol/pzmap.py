@@ -6,14 +6,14 @@ import numpy as np
 __all__ = ["pzmap"]
 
 
-def pzmap(sys_, title='pole-zero map', plot=True):
+def pzmap(sys_, title='pole-zero map', *, plot=True):
     """
 
     :param sys_:
     :type sys_: src.transferfunction.SISO
-    :param title:
+    :param title: the title of the pzmap
     :type title: str
-    :param plot:
+    :param plot: if plot is true it will draw the picture
     :type plot: bool
     :return:
     :rtype: Tuple[numpy.ndarray, numpy.ndarray]

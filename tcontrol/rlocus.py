@@ -19,7 +19,7 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
     :param plot:
     :type plot: bool
     :return:
-    :rtype:
+    :rtype: tuple[array like, array like]
     """
     if not isinstance(sys_, SISO) and isinstance(sys_, LTI):
         raise NotImplementedError('rlocus is only for SISO system now')
@@ -65,9 +65,10 @@ def _sort_roots(roots):
     sorted_[0] = roots[0]
     pre_row = sorted_[0]
     for n, row in enumerate(roots[1:, :]):
-        _ = (np.abs(i - pre_row) for i in row)
-        _ = [i.argmin() for i in _]
-        _ = [i[-1] for i in sorted(zip(_, row), key=operator.itemgetter(0))]
+        distance_arr = [np.abs(i - pre_row) for i in row]
+        _ = [i.argmin() for i in distance_arr]
+        _ = sorted(zip(_, row), key=operator.itemgetter(0))
+        _ = [i[-1] for i in _]
         sorted_[n + 1] = np.array(_)
         pre_row = sorted_[n + 1, :]
     return sorted_
