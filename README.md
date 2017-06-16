@@ -8,6 +8,9 @@ but now only a few features have been implemented.
 + Sympy
 + Matplotlib
 
+## Install
+    python -m setup.py install
+
 ## TODO List
 - [x] pole-zero map
 - [x] root-locus method
@@ -16,7 +19,7 @@ but now only a few features have been implemented.
 - [ ] add more features to time response
 - [ ] improve the accuracy of the rlocus func
 - [ ] improve performance  
-    
+- [ ] add comments and documentations  
     ...
 
 ## Contributions
