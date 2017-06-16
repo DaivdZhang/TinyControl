@@ -12,7 +12,7 @@ but now only a few features have been implemented.
 - [x] pole-zero map
 - [x] root-locus method
 - [x] time response
-- [ ] frequency respone
+- [x] frequency response
 - [ ] add more features to time response
 - [ ] improve the accuracy of the rlocus func
 - [ ] improve performance  
