@@ -3,7 +3,7 @@ import numpy as np
 import math
 from matplotlib import pyplot as plt
 
-__all__ = ["nyquist"]
+__all__ = ["nyquist", "bode"]
 
 
 def nyquist(sys_, omega=None, *, plot=True):
@@ -53,3 +53,70 @@ def nyquist(sys_, omega=None, *, plot=True):
         plt.draw()
 
     return result, omega
+
+
+def bode(sys_, omega=None, *, plot=True):
+    """
+
+    :param sys_:
+    :type sys_: SISO
+    :param omega:
+    :type omega: np.ndarray
+    :param plot:
+    :type plot: bool
+    :return:
+    :rtype:
+    """
+    if not isinstance(sys_, SISO):
+        if isinstance(sys_, LinearTimeInvariant):
+            raise NotImplementedError
+
+    if omega is None:
+        omega = np.logspace(-1, 3)
+    omega = omega*1j
+
+    num = np.poly1d(sys_.num)
+    den = np.poly1d(sys_.den)
+
+    A = 20*np.log(np.abs(num(omega)/den(omega)))
+
+    deg = np.zeros_like(omega)
+    for i in sys_.zero():
+        p = np.poly1d([1, -i])
+        deg = deg + np.angle(p(omega), deg=True)
+    for i in sys_.pole():
+        p = np.poly1d([1, -i])
+        deg = deg - np.angle(p(omega), deg=True)
+    phi = deg
+
+    if plot:
+        plt.title("Bode Diagram")
+
+        plt.subplot(2, 1, 1)
+        plt.axvline(x=0, color='black')
+        plt.axhline(y=0, color='black')
+        plt.xscale('log')
+
+        y_range = [i*20 for i in range(int(min(A))//20 - 1, int(max(A))//20 + 2)]
+        plt.yticks(y_range)
+
+        plt.plot(omega.imag, A, '-', color='#069af3')
+        plt.grid(which='both')
+        plt.ylabel('Magnitude/dB')
+
+        plt.subplot(2, 1, 2)
+        plt.axvline(x=0, color='black')
+        plt.axhline(y=0, color='black')
+        plt.xscale('log')
+
+        y_range = [i*45 for i in range(int(min(A))//45 - 1, int(max(A))//45 + 2)]
+        plt.yticks(y_range)
+
+        plt.plot(omega.imag, phi, '-', color='#069af3')
+        plt.grid(which='both')
+        plt.ylabel('Phase/deg')
+        plt.xlabel('Frequency/(rad/s)')
+
+        plt.draw()
+
+    return A, phi, omega
