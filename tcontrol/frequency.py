@@ -1,4 +1,4 @@
-from .transferfunction import SISO, LinearTimeInvariant
+from tcontrol.transferfunction import SISO, LinearTimeInvariant
 import numpy as np
 import math
 from matplotlib import pyplot as plt
@@ -11,12 +11,12 @@ def nyquist(sys_, omega=None, *, plot=True):
 
     :param sys_:
     :type sys_: SISO
-    :param omega:
+    :param omega: values of angular frequency
     :type omega: np.ndarray
     :param plot:
     :type plot: bool
     :return:
-    :rtype:
+    :rtype: (np.ndarray, np.ndarray)
     """
     if not isinstance(sys_, SISO):
         if isinstance(sys_, LinearTimeInvariant):
@@ -60,12 +60,12 @@ def bode(sys_, omega=None, *, plot=True):
 
     :param sys_:
     :type sys_: SISO
-    :param omega:
+    :param omega: values of angular frequency
     :type omega: np.ndarray
     :param plot:
     :type plot: bool
     :return:
-    :rtype:
+    :rtype: (np.ndarray, np.ndarray)
     """
     if not isinstance(sys_, SISO):
         if isinstance(sys_, LinearTimeInvariant):

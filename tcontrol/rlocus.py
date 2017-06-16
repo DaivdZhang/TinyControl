@@ -1,6 +1,6 @@
-from .lti import LinearTimeInvariant as LTI
-from .transferfunction import SISO
-from .pzmap import pzmap
+from tcontrol.lti import LinearTimeInvariant as LTI
+from tcontrol.transferfunction import SISO
+from tcontrol.pzmap import pzmap
 import numpy as np
 from matplotlib import pyplot as plt
 from functools import partial
@@ -11,15 +11,17 @@ __all__ = ["rlocus"]
 
 def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
     """
+    Usage:
+        the root locus of the system
 
-    :param kvect:
-    :type kvect: array like
-    :param sys_:
-    :type sys_: SISO, LTI
+    :param sys_: the transfer function of the system
+    :type sys_: SISO | LTI
+    :param kvect: k from 0 to inf
+    :type kvect: np.ndarray
     :param plot:
     :type plot: bool
     :return:
-    :rtype: tuple[array like, array like]
+    :rtype: (np.ndarray, np.ndarray)
     """
     if not isinstance(sys_, SISO) and isinstance(sys_, LTI):
         raise NotImplementedError('rlocus is only for SISO system now')

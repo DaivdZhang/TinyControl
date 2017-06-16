@@ -1,5 +1,5 @@
-from .lti import LinearTimeInvariant as LTI
-from .transferfunction import SISO, _siso_to_symbol
+from tcontrol.lti import LinearTimeInvariant as LTI
+from tcontrol.transferfunction import SISO, _siso_to_symbol
 import numpy as np
 import sympy as sym
 from matplotlib import pyplot as plt

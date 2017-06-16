@@ -1,4 +1,4 @@
-from .lti import LinearTimeInvariant
+from tcontrol.lti import LinearTimeInvariant
 from copy import deepcopy
 import numpy as np
 import sympy as sym
@@ -23,10 +23,10 @@ class SISO(LinearTimeInvariant):
                 den = args[0].den
                 dt = args[0].dt
             else:
-                raise TypeError("type of arg should be SISO, got %s".format(type(args[0])))
+                raise TypeError("type of arg should be SISO, got {0}".format(type(args[0])))
 
         else:
-            raise ValueError('1, 2 or 3 arg(s) expected. received %s'.format(length))
+            raise ValueError('1, 2 or 3 arg(s) expected. received {0}'.format(length))
 
         num = np.array(num)
         den = np.array(den)
@@ -166,6 +166,15 @@ def _siso_to_symbol(num, den):
 
 
 def _poly_gcd(a, b):
+    """
+
+    :param a:
+    :type a:
+    :param b:
+    :type b:
+    :return:
+    :rtype:
+    """
     s = sym.Symbol('s')
     r = sym.gcd(a, b)
     if r.is_Number:
@@ -194,6 +203,24 @@ def _poly_gcd(a, b):
 
 
 def tf(*args):
+    """
+    Usage:
+        Create a transfer function of a system
+
+    Example:
+        >>> from tcontrol import tf
+        >>> system = tf([1, 1], [1, 0.5, 1])
+        >>> print(system)
+        (1.0*s + 1.0)/(1.0*s**2 + 0.5*s + 1.0)
+        >>> system = tf(system)
+        >>> print(system)
+        (1.0*s + 1.0)/(1.0*s**2 + 0.5*s + 1.0)
+
+    :param args:
+    :type args: SISO | list[int | float]
+    :return: the transfer function of the system
+    :rtype: SISO
+    """
     length = len(args)
     if length == 2 or length == 3:
         return SISO(*args)
@@ -206,6 +233,26 @@ def tf(*args):
 
 
 def zpk(z, p, k):
+    """
+    Usage:
+        Create a transfer function by zeros, poles, and the gain k
+
+    Example:
+        >>> from tcontrol import zpk
+        >>> system = zpk([], [1, 0.5, 1], 5.2)
+        >>> print(system)
+        5.2/(1.0*s**3 - 2.5*s**2 + 2.0*s - 0.5)
+
+
+    :param z: zeros of a system
+    :type z: np.ndarray | list | tuple
+    :param p: poles of a system
+    :type p: np.ndarray | list | tuple
+    :param k: the gain of the system
+    :type k: int | float
+    :return: the transfer function of the system
+    :rtype: SISO
+    """
     num = np.array([k])
     for zi in z:
         num = np.convolve(num, np.array([1, -zi]))

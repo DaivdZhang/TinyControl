@@ -1,5 +1,5 @@
-from .transferfunction import SISO
-from .lti import LinearTimeInvariant as LTI
+from tcontrol.transferfunction import SISO
+from tcontrol.lti import LinearTimeInvariant as LTI
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -8,15 +8,17 @@ __all__ = ["pzmap"]
 
 def pzmap(sys_, title='pole-zero map', *, plot=True):
     """
+    Usage:
+        Draw the pole-zero map
 
-    :param sys_:
-    :type sys_: src.transferfunction.SISO
+    :param sys_: the transfer function of the system
+    :type sys_: SISO
     :param title: the title of the pzmap
     :type title: str
     :param plot: if plot is true it will draw the picture
     :type plot: bool
-    :return:
-    :rtype: Tuple[numpy.ndarray, numpy.ndarray]
+    :return: the poles and zeros of the system
+    :rtype: (numpy.ndarray, numpy.ndarray)
     """
     if isinstance(sys_, LTI):
         if not isinstance(sys_, SISO):

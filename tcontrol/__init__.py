@@ -1,8 +1,8 @@
-from .lti import *
-from .poly import *
-from .pzmap import *
-from .transferfunction import *
-from .time_response import *
-from .rlocus import *
-from .frequency import *
-from . import plot_func as plot
+from tcontrol.lti import *
+from tcontrol.poly import *
+from tcontrol.pzmap import *
+from tcontrol.transferfunction import *
+from tcontrol.time_response import *
+from tcontrol.rlocus import *
+from tcontrol.frequency import *
+from tcontrol import plot_func as plot
