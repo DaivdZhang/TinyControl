@@ -1,4 +1,4 @@
-from tcontrol.lti import LinearTimeInvariant as LTI
+from tcontrol.lti import LinearTimeInvariant
 from tcontrol.transferfunction import SISO
 from tcontrol.pzmap import pzmap
 import numpy as np
@@ -18,12 +18,12 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
     :type sys_: SISO | LTI
     :param kvect: k from 0 to inf
     :type kvect: np.ndarray
-    :param plot:
+    :param plot: if plot is true it will draw the picture
     :type plot: bool
-    :return:
+    :return: roots of the den and kvect
     :rtype: (np.ndarray, np.ndarray)
     """
-    if not isinstance(sys_, SISO) and isinstance(sys_, LTI):
+    if not isinstance(sys_, SISO) and isinstance(sys_, LinearTimeInvariant):
         raise NotImplementedError('rlocus is only for SISO system now')
 
     ol_gains = np.linspace(0, 100, 10000) if kvect is None else kvect

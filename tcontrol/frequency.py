@@ -8,8 +8,10 @@ __all__ = ["nyquist", "bode"]
 
 def nyquist(sys_, omega=None, *, plot=True):
     """
+    Usage:
+        Draw the nyquist plot of the system
 
-    :param sys_:
+    :param sys_: the transfer function of the system
     :type sys_: SISO
     :param omega: values of angular frequency
     :type omega: np.ndarray
