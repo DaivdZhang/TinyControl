@@ -14,6 +14,13 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
     Usage:
         the root locus of the system
 
+    Example:
+        >>> import tcontrol as tc
+        >>> import numpy as np
+        >>> system = tc.tf([1], [1, 2, 1])
+        >>> tc.rlocus(system, np.linspace(0, 5, 1000))
+        >>> tc.plot.show()
+
     :param sys_: the transfer function of the system
     :type sys_: SISO | LTI
     :param kvect: k from 0 to inf

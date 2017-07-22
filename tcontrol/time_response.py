@@ -1,4 +1,4 @@
-from tcontrol.lti import LinearTimeInvariant as LTI
+# from tcontrol.lti import LinearTimeInvariant as LTI
 from tcontrol.transferfunction import SISO, _siso_to_symbol
 import numpy as np
 import sympy as sym
@@ -121,6 +121,7 @@ def any_input(sys_, t=None, input_signal=None, *, plot=True):
         >>> import tcontrol as tc
         >>> system = tc.tf([1], [1, 0, 1])
         >>> tc.any_input(system, None, "t**2 + 3")
+        >>> tc.plot.show()
 
     :param sys_: the transfer function of the system
     :type sys_: SISO

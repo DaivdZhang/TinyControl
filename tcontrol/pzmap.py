@@ -11,6 +11,12 @@ def pzmap(sys_, title='pole-zero map', *, plot=True):
     Usage:
         Draw the pole-zero map
 
+    Example:
+        >>> import tcontrol as tc
+        >>> system = tc.tf([1], [1, 1, 0, 3])
+        >>> tc.pzmap(system)
+        >>> tc.plot.show()
+
     :param sys_: the transfer function of the system
     :type sys_: SISO
     :param title: the title of the pzmap
