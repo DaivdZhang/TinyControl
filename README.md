@@ -3,10 +3,10 @@ The tinyControl is a python lib for automatic control system analysis,
 but now only a few features have been implemented.
 
 ## Dependency
-+ Python 3
-+ Numpy
-+ Sympy
-+ Matplotlib
++ [Python 3](https://www.python.org)
++ [Numpy](http://www.numpy.org)
++ [Sympy](http://www.sympy.org)
++ [Matplotlib](https://matplotlib.org)
 
 ## Install
     python -m setup.py install
@@ -19,7 +19,8 @@ but now only a few features have been implemented.
 - [ ] add more features to time response
 - [ ] improve the accuracy of the rlocus func
 - [ ] improve performance  
-- [ ] add comments and documentations  
+- [ ] add comments and documentations
+- [ ] rewrite tests 
     ...
 
 ## Contributions

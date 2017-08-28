@@ -20,9 +20,8 @@ def nyquist(sys_, omega=None, *, plot=True):
     :return:
     :rtype: (np.ndarray, np.ndarray)
     """
-    if not isinstance(sys_, SISO):
-        if isinstance(sys_, LinearTimeInvariant):
-            raise NotImplementedError
+    if not isinstance(sys_, SISO) and isinstance(sys_, LinearTimeInvariant):
+        raise NotImplementedError
 
     if omega is None:
         omega = np.linspace(0, 100, 10000)
