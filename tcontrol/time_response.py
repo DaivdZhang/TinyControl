@@ -153,4 +153,4 @@ def _plot_curve(y, t, title):
     plt.axhline(y=0, color='black')
     plt.plot(t, y)
     plt.grid()
-    plt.draw()
+    plt.show()

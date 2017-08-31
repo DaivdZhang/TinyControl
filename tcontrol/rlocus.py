@@ -3,6 +3,7 @@ from tcontrol.transferfunction import SISO
 from tcontrol.pzmap import pzmap
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib import widgets
 from functools import partial, reduce
 import operator
 
@@ -39,22 +40,26 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
     roots = _sort_roots(roots)
 
     if plot:
-        fig = plt.figure()
-        fig.canvas.mpl_connect("button_release_event", partial(_search_k, sys_=sys_))
-        plt.axvline(x=0, color='black')
-        plt.axhline(y=0, color='black')
-        if 'xlim' in kwargs.keys():
-            plt.xlim(*kwargs['xlim'])
-        if 'ylim' in kwargs.keys():
-            plt.ylim(*kwargs['ylim'])
+        fig, ax = plt.subplots()
+        ax.axvline(x=0, color='black')
+        ax.axhline(y=0, color='black')
 
-        plt.plot(roots.real, roots.imag, color='red')
+        if 'xlim' in kwargs.keys():
+            ax.set_xlim(*kwargs['xlim'])
+        if 'ylim' in kwargs.keys():
+            ax.set_ylim(*kwargs['xlim'])
+
+        ax.plot(roots.real, roots.imag, color='red')
         p, z = pzmap(sys_, plot=False)
-        plt.scatter(np.real(z), np.imag(z), s=50, marker='o', color='#069af3')
-        plt.scatter(np.real(p), np.imag(p), s=50, marker='x', color='#fdaa48')
-        plt.grid()
+        ax.scatter(np.real(z), np.imag(z), s=50, marker='o', color='#069af3')
+        ax.scatter(np.real(p), np.imag(p), s=50, marker='x', color='#fdaa48')
+        ax.grid()
         plt.title('Root Locus')
-        plt.draw()
+        widgets.Cursor(ax, useblit=True, linewidth=2, linestyle='--')
+
+        fig.canvas.mpl_connect("button_release_event", partial(_search_k, sys_=sys_))
+
+        plt.show()
 
     return roots, kvect
 

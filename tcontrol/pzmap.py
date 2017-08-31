@@ -50,6 +50,6 @@ def pzmap(sys_, title='pole-zero map', *, plot=True):
         plt.xlabel('Real Axis')
         plt.ylabel('Imag Axis')
         plt.title(title)
-        plt.draw()
+        plt.show()
 
     return pole, zero
