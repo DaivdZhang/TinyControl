@@ -116,8 +116,8 @@ class SISO(LinearTimeInvariant):
 
         :param other: the transfer function of the feedback path
         :type other: SISO | int
-        :param sign: if sign is 1 function will create the negative feedback. otherwise the positive
-                     feedback
+        :param sign: if sign is 1 function will create the negative feedback.
+                     otherwise the positive feedback
         :type sign: int
         :return:
         :rtype:
@@ -128,7 +128,8 @@ class SISO(LinearTimeInvariant):
         dt = _get_dt(self, other)
 
         num = np.convolve(self.num, other.den)
-        den = np.polyadd(np.convolve(self.num, other.num), np.convolve(self.den, other.den)*sign)
+        den = np.polyadd(np.convolve(self.num, other.num),
+                         np.convolve(self.den, other.den)*sign)
 
         return SISO(num, den, dt)
 
@@ -221,15 +222,8 @@ def tf(*args):
     :return: the transfer function of the system
     :rtype: SISO
     """
-    length = len(args)
-    if length == 2 or length == 3:
-        return SISO(*args)
-    elif length == 1:
-        try:
-            sys_ = SISO(*args)
-            return sys_
-        except ValueError as e:
-            print(e)
+    sys_ = SISO(*args)
+    return sys_
 
 
 def zpk(z, p, k):

@@ -3,7 +3,7 @@ from tcontrol.transferfunction import SISO
 from tcontrol.pzmap import pzmap
 import numpy as np
 from matplotlib import pyplot as plt
-from functools import partial
+from functools import partial, reduce
 import operator
 
 __all__ = ["rlocus"]
@@ -39,6 +39,8 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
     roots = _sort_roots(roots)
 
     if plot:
+        fig = plt.figure()
+        fig.canvas.mpl_connect("button_release_event", partial(_search_k, sys_=sys_))
         plt.axvline(x=0, color='black')
         plt.axhline(y=0, color='black')
         if 'xlim' in kwargs.keys():
@@ -81,3 +83,19 @@ def _sort_roots(roots):
         sorted_[n + 1] = np.array(_)
         pre_row = sorted_[n + 1, :]
     return sorted_
+
+
+def _search_k(event, sys_):
+    """
+
+    :param event:
+    :type event: matplotlib.backend_bases.MouseEvent
+    :param sys_:
+    :type sys_: SISO
+    """
+    s = complex(event.xdata, event.ydata)
+    num = np.abs(sys_.pole() - s)
+    den = np.abs(sys_.zero() - s)
+    f = partial(reduce, lambda x, y: x*y)
+    k = f(num)/f(den)
+    print("K = {0:.5f} at {1:5f}{2:.5f}j".format(k, s.real, s.imag))
