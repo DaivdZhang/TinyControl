@@ -51,7 +51,7 @@ def nyquist(sys_, omega=None, *, plot=True):
         plt.title("Nyquist Plot")
         plt.xlabel('Real Axis')
         plt.ylabel('Imag Axis')
-        plt.draw()
+        plt.show()
 
     return result, omega
 
@@ -118,6 +118,6 @@ def bode(sys_, omega=None, *, plot=True):
         plt.ylabel('Phase/deg')
         plt.xlabel('Frequency/(rad/s)')
 
-        plt.draw()
+        plt.show()
 
     return A, phi, omega

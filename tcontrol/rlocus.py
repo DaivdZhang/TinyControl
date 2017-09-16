@@ -20,7 +20,6 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
         >>> import numpy as np
         >>> system = tc.tf([1], [1, 2, 1])
         >>> tc.rlocus(system, np.linspace(0, 5, 1000))
-        >>> tc.plot.show()
 
     :param sys_: the transfer function of the system
     :type sys_: SISO | LTI
@@ -55,7 +54,7 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
         ax.scatter(np.real(p), np.imag(p), s=50, marker='x', color='#fdaa48')
         ax.grid()
         plt.title('Root Locus')
-        widgets.Cursor(ax, useblit=True, linewidth=2, linestyle='--')
+        cursor = widgets.Cursor(ax, useblit=True, linewidth=1, linestyle='--')
 
         fig.canvas.mpl_connect("button_release_event", partial(_search_k, sys_=sys_))
 
@@ -103,4 +102,4 @@ def _search_k(event, sys_):
     den = np.abs(sys_.zero() - s)
     f = partial(reduce, lambda x, y: x*y)
     k = f(num)/f(den)
-    print("K = {0:.5f} at {1:5f}{2:.5f}j".format(k, s.real, s.imag))
+    print("K = {0:.5f} at {1:.5f}{2:.5f}j".format(k, s.real, s.imag))

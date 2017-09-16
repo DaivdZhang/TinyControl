@@ -18,7 +18,6 @@ class TestSISO(TestCase):
         self.s = SISO([1, 1], [1, 0, 1])
         self.neg_s = SISO([-1, -1], [1, 0, 1])
 
-
     def test___init__(self):
         self.assertNotEqual(id(self.s1), id(self.s2))
         self.assertNotEqual(id(self.s1.num), id(self.s2.num))
@@ -34,7 +33,7 @@ class TestSISO(TestCase):
         self.assertEqual(self.s3 + self.s4, self.s6)
 
     def test___mul__(self):
-        self.assertEqual(self.s3 * self.s4, self.s7)
+        self.assertEqual(self.s3*self.s4, self.s7)
 
     def test___sub__(self):
         self.assertEqual(self.s1 - self.s8, self.s9)

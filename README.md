@@ -20,8 +20,7 @@ but now only a few features have been implemented.
 - [ ] improve the accuracy of the rlocus func
 - [ ] improve performance  
 - [ ] add comments and documentations
-- [ ] rewrite tests 
-    ...
+- [ ] rewrite tests
 
 ## Contributions
 Your contributions are welcome anytime.
