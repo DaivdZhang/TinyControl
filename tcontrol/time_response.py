@@ -2,8 +2,8 @@
 from tcontrol.transferfunction import SISO, _siso_to_symbol
 import numpy as np
 import sympy as sym
-from matplotlib import pyplot as plt
 from functools import partial
+from tcontrol.plot_func import plot_response_curve
 
 __all__ = ['impulse', 'step', 'ramp', 'any_input']
 
@@ -83,7 +83,7 @@ def step(sys_, t=None, *, plot=True):
     y, _ = _any_input(sys_, t, 'step')
 
     if plot:
-        _plot_curve(y, t, 'Step Response')
+        plot_response_curve(y, t, 'Step Response')
 
     return y, t
 
@@ -95,7 +95,7 @@ def impulse(sys_, t=None, *, plot=True):
     y, _ = _any_input(sys_, t, 'impulse')
 
     if plot:
-        _plot_curve(y, t, 'Impulse Response')
+        plot_response_curve(y, t, 'Impulse Response')
 
     return y, t
 
@@ -107,7 +107,7 @@ def ramp(sys_, t=None, *, plot=True):
     y, _ = _any_input(sys_, t, 'ramp')
 
     if plot:
-        _plot_curve(y, t, 'Ramp Response')
+        plot_response_curve(y, t, 'Ramp Response')
 
     return y, t
 
@@ -140,17 +140,6 @@ def any_input(sys_, t=None, input_signal=None, *, plot=True):
     y, _ = _any_input(sys_, t, input_signal)
 
     if plot:
-        _plot_curve(y, t, input_signal)
+        plot_response_curve(y, t, input_signal)
 
     return y, t
-
-
-def _plot_curve(y, t, title):
-    plt.title(title)
-    plt.xlabel('t/s')
-    plt.ylabel('Amplitude')
-    plt.axvline(x=0, color='black')
-    plt.axhline(y=0, color='black')
-    plt.plot(t, y)
-    plt.grid()
-    plt.show()

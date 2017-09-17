@@ -57,6 +57,9 @@ class TestTransferFunction(TestCase):
         s1 = tf(SISO([1], [1, 0]))
         s2 = SISO([2], [2, 0])
         self.assertEqual(s1, s2)
+        s3 = tf([1, 1], [1, 0, -1])
+        s4 = tf([1], [1, -1])
+        self.assertEqual(s3, s4)
 
     def test_zpk(self):
         s1 = SISO([5, 5], [1, 0, -4])
