@@ -1,8 +1,10 @@
 from unittest import TestCase
-from tcontrol.pzmap import pzmap
-from tcontrol.transferfunction import tf
-from tests.data_generator import SYSTEMS
+
 import numpy as np
+
+from tcontrol.pzmap import pzmap
+from tcontrol.tests.data_generator import SYSTEMS
+from tcontrol.transferfunction import tf
 
 
 class TestPzmap(TestCase):
