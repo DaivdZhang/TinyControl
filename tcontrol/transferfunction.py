@@ -6,30 +6,13 @@ import sympy as sym
 # TODO: trans function of MIMO
 # TODO: improve error msg of class SISO
 
-__all__ = ["SISO", "tf", "zpk"]
+__all__ = ["SISO", "tf", "zpk", "ss2tf"]
 
 
 class SISO(LinearTimeInvariant):
-    def __init__(self, *args):
-        length = len(args)
-        if length == 2:
-            num, den = args
-            dt = None
-        elif length == 3:
-            num, den, dt = args
-        elif length == 1:
-            if isinstance(args[0], SISO):
-                num = args[0].num
-                den = args[0].den
-                dt = args[0].dt
-            else:
-                raise TypeError("type of arg should be SISO, got {0}".format(type(args[0])))
-
-        else:
-            raise ValueError('1, 2 or 3 arg(s) expected. received {0}'.format(length))
-
-        num = np.array(num)
-        den = np.array(den)
+    def __init__(self, num, den, *, dt=None):
+        num = np.array(np.poly1d(num))
+        den = np.array(np.poly1d(den))
         num, den = _poly_simplify(num, den)
 
         super().__init__(1, 1, dt)
@@ -51,7 +34,7 @@ class SISO(LinearTimeInvariant):
     def __neg__(self):
         num = deepcopy(self.num)
         num *= -1
-        return SISO(num, self.den, self.dt)
+        return SISO(num, self.den, dt=self.dt)
 
     def __add__(self, other):
         """
@@ -64,12 +47,12 @@ class SISO(LinearTimeInvariant):
         dt = _get_dt(self, other)
 
         if np.array_equal(self.den, other.den):
-            return SISO(np.polyadd(self.num, other.num), self.den, dt)
+            return SISO(np.polyadd(self.num, other.num), self.den, dt=dt)
 
         den = np.convolve(self.den, other.den)
         num = np.polyadd(np.convolve(self.num, other.den), np.convolve(other.num, self.den))
 
-        return SISO(num, den, dt)
+        return SISO(num, den, dt=dt)
 
     __radd__ = __add__
 
@@ -93,7 +76,7 @@ class SISO(LinearTimeInvariant):
 
         dt = _get_dt(self, other)
 
-        return SISO(num, den, dt)
+        return SISO(num, den, dt=dt)
 
     __rmul__ = __mul__
 
@@ -115,7 +98,7 @@ class SISO(LinearTimeInvariant):
         :rtype:
         """
         if other == 1:
-            other = SISO([1], [1], self.dt)
+            other = SISO([1], [1], dt=self.dt)
 
         dt = _get_dt(self, other)
 
@@ -123,7 +106,7 @@ class SISO(LinearTimeInvariant):
         den = np.polyadd(np.convolve(self.num, other.num),
                          np.convolve(self.den, other.den)*sign)
 
-        return SISO(num, den, dt)
+        return SISO(num, den, dt=dt)
 
 
 def _get_dt(sys1, sys2):
@@ -211,7 +194,23 @@ def tf(*args):
     :return: the transfer function of the system
     :rtype: SISO
     """
-    sys_ = SISO(*args)
+    length = len(args)
+    if length == 2:
+        num, den = args
+        dt = None
+    elif length == 3:
+        num, den, dt = args
+    elif length == 1:
+        if isinstance(args[0], SISO):
+            num = args[0].num
+            den = args[0].den
+            dt = args[0].dt
+        else:
+            raise TypeError("type of arg should be SISO, got {0}".format(type(args[0])))
+
+    else:
+        raise ValueError('1, 2 or 3 arg(s) expected. received {0}'.format(length))
+    sys_ = SISO(num, den, dt=dt)
     return sys_
 
 
@@ -244,3 +243,21 @@ def zpk(z, p, k):
     for pi in p:
         den = np.convolve(den, np.array([1, -pi]))
     return SISO(num, den)
+
+
+def ss2tf(system):
+    """
+
+    :param system:
+    :type system: StateSpace
+    :return:
+    :rtype:
+    """
+    T = system.to_controllable_form()
+    A_ = T.I*system.A*T
+    C_ = system.C*T
+    a = np.asarray(A_[-1]).reshape(-1)*(-1)
+    a = np.append(a, 1)
+    a = a[::-1]
+    b = np.asarray(C_[-1]).reshape(-1)
+    return SISO(b[::-1], a)
