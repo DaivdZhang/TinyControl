@@ -12,7 +12,7 @@ __all__ = ["rlocus"]
 
 def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
     """
-    Usage:
+    Use:
         the root locus of the system
 
     Example:

@@ -1,5 +1,8 @@
 import numpy as np
 from tcontrol.lti import LinearTimeInvariant
+import warnings
+
+__all__ = ["StateSpace", "ss", "tf2ss", "continuous_to_discrete"]
 
 
 class StateSpace(LinearTimeInvariant):
@@ -92,11 +95,11 @@ class StateSpace(LinearTimeInvariant):
                       self.A.shape[1] + other.A.shape[1]))
         A[0: self.A.shape[0], 0: self.A.shape[1]] = self.A
         A[self.A.shape[0]:, self.A.shape[1]:] = other.A
-        A[self.A.shape[0]:, 0: self.A.shape[0]] = other.B*self.C
-        B = np.concatenate((self.B, other.B*self.D), axis=0)
-        C = np.concatenate((other.D*self.C, other.C), axis=1)
-        D = other.D*self.D
-        return StateSpace(A, B, C, D, dt=dt)
+        A[0: self.A.shape[0], self.A.shape[0]:] = self.B*other.C
+        B = np.concatenate((other.B, self.B*other.D), axis=0)
+        C = np.concatenate((self.D*other.C, self.C), axis=1)
+        D = self.D*other.D
+        return StateSpace(A, C.T, B.T, D, dt=dt)
 
     def feedback(self, K=1, sign=1):
         try:
@@ -108,7 +111,7 @@ class StateSpace(LinearTimeInvariant):
 
     def pole(self):
         """
-        Usage:
+        Use:
             return the poles of the system
 
         :return: poles of the system
@@ -118,7 +121,7 @@ class StateSpace(LinearTimeInvariant):
 
     def controllability(self):
         """
-        Usage:
+        Use:
             calculate and return the matrix [B A*B A^2*B ... A^(n-1)*B]
 
         :return: the matrix [B A*B A^2*B ... A^(n-1)*B]
@@ -139,7 +142,7 @@ class StateSpace(LinearTimeInvariant):
 
     def is_controllable(self):
         """
-        Usage:
+        Use:
             the rank of the controllability matrix
 
         :return:
@@ -152,7 +155,7 @@ class StateSpace(LinearTimeInvariant):
 
     def observability(self):
         """
-        Usage:
+        Use:
             calculate and return the matrix [C
                                              C*A
                                              C*A^2
@@ -173,7 +176,7 @@ class StateSpace(LinearTimeInvariant):
 
     def is_observable(self):
         """
-        Usage:
+        Use:
             the rank of the observability matrix
 
         :return:
@@ -185,27 +188,31 @@ class StateSpace(LinearTimeInvariant):
             return False
 
     @classmethod
-    def dual_system(cls, system):
+    def dual_system(cls, sys_):
         """
+        Use:
+            generate the dual system
 
-        :param system:
-        :type system: StateSpace
-        :return:
+        :param sys_: state space to be calculated
+        :type sys_: StateSpace
+        :return: the dual system
         :rtype: StateSpace
         """
-        return cls(system.A.T.copy(), system.C.T.copy(), system.B.T.copy(), system.D.copy(),
-                   dt=system.dt)
+        return cls(sys_.A.T.copy(), sys_.C.T.copy(), sys_.B.T.copy(), sys_.D.T.copy(),
+                   dt=sys_.dt)
 
     @staticmethod
-    def lyapunov(system):
+    def lyapunov(sys_):
         """
+        Use:
+            solve the equation A.T * X + X * A = -I
 
-        :param system:
-        :type system: StateSpace
-        :return:
-        :rtype:
+        :param sys_: state space to be calculated
+        :type sys_: StateSpace
+        :return: the matrix X
+        :rtype: np.matrix
         """
-        np.eye(system.A.shape[0])
+        raise NotImplemented
 
 
 def ss(*args, **kwargs):
@@ -257,6 +264,28 @@ def tf2ss(*args):
     c[-1] = 1
     C = np.mat(c)
     return StateSpace(A.T, C.T, B.T, D, dt=dt)
+
+
+def continuous_to_discrete(sys_, sample_time):
+    """
+    Use:
+        convert continuous system to discrete system
+
+    :param sys_: continuous system
+    :type sys_: StateSpace
+    :param sample_time: sample time of the discrete system
+    :type sample_time: int | float
+    :return: discrete system
+    :rtype: StateSpace
+    """
+    if sys_.isctime():
+        G = sample_time*sys_.A + np.eye(sys_.A.shape[0])
+        H = sample_time*sys_.B
+        return StateSpace(G, H, sys_.C.copy(), sys_.D.copy(), dt=sample_time)
+    else:
+        warnings.warn("the system is already a discrete system, no need to convert",
+                      RuntimeWarning, stacklevel=2)
+        return sys_
 
 
 def _convert_to_ss(obj, **kwargs):

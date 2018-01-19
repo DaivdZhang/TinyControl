@@ -8,7 +8,7 @@ __all__ = ["nyquist", "bode"]
 
 def nyquist(sys_, omega=None, *, plot=True):
     """
-    Usage:
+    Use:
         Draw the nyquist plot of the system
 
     :param sys_: the transfer function of the system
@@ -58,6 +58,8 @@ def nyquist(sys_, omega=None, *, plot=True):
 
 def bode(sys_, omega=None, *, plot=True):
     """
+    Use:
+        draw the bode plot
 
     :param sys_:
     :type sys_: SISO

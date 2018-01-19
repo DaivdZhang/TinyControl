@@ -1,6 +1,6 @@
 from unittest import TestCase
 import numpy as np
-from tcontrol.statespace import StateSpace, tf2ss
+from tcontrol.statespace import *
 from tcontrol.transferfunction import tf, ss2tf
 
 
@@ -25,9 +25,14 @@ class TestStateSpace(TestCase):
         ss = StateSpace(self.A, self.B, self.C, self.D)
         ss = ss + ss
 
+    def test___mul__(self):
+        # A_ = np.mat([[0, 1, 1, 1], [-4, -0.5, 1, 2], [0, 0, 0, -4], ])
+        # print(StateSpace.dual_system(self.ss_)*self.ss_)
+        print(self.ss_*StateSpace.dual_system(self.ss_))
+
     def test_pole(self):
         ss = StateSpace(self.A, self.B, self.C, self.D)
-        print(ss.pole())
+        pass
 
     def test_controllability(self):
         # print(self.ss_.controllability())
@@ -66,3 +71,10 @@ class TestStateSpace(TestCase):
 
     def test_ss2tf(self):
         self.assertEqual(ss2tf(self.ss_), self.tf_)
+
+    def test_continuous_to_discrete(self):
+        A = np.array([[0, 1], [0, -2]])
+        B = np.array([[0],[1]])
+        sys_ = StateSpace(A, B, self.C, self.D)
+        d_sys_ = continuous_to_discrete(sys_, 0.05)
+        continuous_to_discrete(d_sys_, 0.01)

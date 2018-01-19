@@ -6,3 +6,4 @@ from tcontrol.time_response import *
 from tcontrol.rlocus import *
 from tcontrol.frequency import *
 from tcontrol import plot_func as plot
+from tcontrol.statespace import *

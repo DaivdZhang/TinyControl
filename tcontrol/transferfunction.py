@@ -177,7 +177,7 @@ def _poly_simplify(num, den):
 
 def tf(*args):
     """
-    Usage:
+    Use:
         Create a transfer function of a system
 
     Example:
@@ -216,7 +216,7 @@ def tf(*args):
 
 def zpk(z, p, k):
     """
-    Usage:
+    Use:
         Create a transfer function by zeros, poles, and the gain k
 
     Example:

@@ -8,7 +8,7 @@ __all__ = ["pzmap"]
 
 def pzmap(sys_, title='pole-zero map', *, plot=True):
     """
-    Usage:
+    Use:
         Draw the pole-zero map
 
     Example:
