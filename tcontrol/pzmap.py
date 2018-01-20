@@ -1,4 +1,4 @@
-from tcontrol.transferfunction import SISO
+from tcontrol.transferfunction import TransferFunction
 from tcontrol.lti import LinearTimeInvariant as LTI
 from matplotlib import pyplot as plt
 import numpy as np
@@ -27,8 +27,8 @@ def pzmap(sys_, title='pole-zero map', *, plot=True):
     :rtype: (numpy.ndarray, numpy.ndarray)
     """
     if isinstance(sys_, LTI):
-        if not isinstance(sys_, SISO):
-            raise NotImplementedError('pzmap currently only for SISO')
+        if not isinstance(sys_, TransferFunction):
+            raise NotImplementedError('pzmap currently only for TransferFunction')
     else:
         raise TypeError('sys_ should be LTI or sub class of LTI')
 

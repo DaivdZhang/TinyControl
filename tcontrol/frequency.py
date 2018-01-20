@@ -1,4 +1,4 @@
-from tcontrol.transferfunction import SISO, LinearTimeInvariant
+from tcontrol.transferfunction import TransferFunction, LinearTimeInvariant
 import numpy as np
 import math
 from matplotlib import pyplot as plt
@@ -12,7 +12,7 @@ def nyquist(sys_, omega=None, *, plot=True):
         Draw the nyquist plot of the system
 
     :param sys_: the transfer function of the system
-    :type sys_: SISO
+    :type sys_: TransferFunction
     :param omega: values of angular frequency
     :type omega: np.ndarray
     :param plot:
@@ -20,7 +20,7 @@ def nyquist(sys_, omega=None, *, plot=True):
     :return:
     :rtype: (np.ndarray, np.ndarray)
     """
-    if not isinstance(sys_, SISO) and isinstance(sys_, LinearTimeInvariant):
+    if not isinstance(sys_, TransferFunction) and isinstance(sys_, LinearTimeInvariant):
         raise NotImplementedError
 
     if omega is None:
@@ -62,7 +62,7 @@ def bode(sys_, omega=None, *, plot=True):
         draw the bode plot
 
     :param sys_:
-    :type sys_: SISO
+    :type sys_: TransferFunction
     :param omega: values of angular frequency
     :type omega: np.ndarray
     :param plot:
@@ -70,7 +70,7 @@ def bode(sys_, omega=None, *, plot=True):
     :return:
     :rtype: (np.ndarray, np.ndarray)
     """
-    if not isinstance(sys_, SISO):
+    if not isinstance(sys_, TransferFunction):
         if isinstance(sys_, LinearTimeInvariant):
             raise NotImplementedError
 

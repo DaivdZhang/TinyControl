@@ -1,5 +1,5 @@
 from tcontrol.lti import LinearTimeInvariant
-from tcontrol.transferfunction import SISO
+from tcontrol.transferfunction import TransferFunction
 from tcontrol.pzmap import pzmap
 import numpy as np
 from matplotlib import pyplot as plt
@@ -30,8 +30,8 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
     :return: roots of the den and kvect
     :rtype: (np.ndarray, np.ndarray)
     """
-    if not isinstance(sys_, SISO) and isinstance(sys_, LinearTimeInvariant):
-        raise NotImplementedError('rlocus is only for SISO system now')
+    if not isinstance(sys_, TransferFunction) and isinstance(sys_, LinearTimeInvariant):
+        raise NotImplementedError('rlocus is only for TransferFunction system now')
 
     ol_gains = np.linspace(0, 100, 10000) if kvect is None else kvect
 
@@ -95,7 +95,7 @@ def _search_k(event, sys_):
     :param event:
     :type event: matplotlib.backend_bases.MouseEvent
     :param sys_:
-    :type sys_: SISO
+    :type sys_: TransferFunction
     """
     s = complex(event.xdata, event.ydata)
     num = np.abs(sys_.pole() - s)

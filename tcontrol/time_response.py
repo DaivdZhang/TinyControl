@@ -1,5 +1,5 @@
 # from tcontrol.lti import LinearTimeInvariant as LTI
-from tcontrol.transferfunction import SISO, _siso_to_symbol
+from tcontrol.transferfunction import TransferFunction, _siso_to_symbol
 from tcontrol.statespace import StateSpace, continuous_to_discrete, tf2ss
 import numpy as np
 import sympy as sym
@@ -14,7 +14,7 @@ def _get_cs(sys_, input_signal):
     """
 
     :param sys_:
-    :type sys_: SISO
+    :type sys_: TransferFunction
     :param input_signal:
     :type input_signal: str
     :return:
@@ -119,11 +119,11 @@ def _any_input(sys_, t, input_signal=0, init_cond=None):
     """
 
     :param sys_: the system to be calculated
-    :type sys_: SISO
+    :type sys_: TransferFunction
     :param t: time
     :type t: None | np.ndarray
     :param input_signal: a array contain the input signal
-    :type input_signal: int | float | np.ndarray | tuple(np.ndarray)
+    :type input_signal: np.ndarray | tuple(iterable)
     :param init_cond: initial condition
     :type init_cond: None | int | float | np.ndarray
     :return: output and time
@@ -132,9 +132,9 @@ def _any_input(sys_, t, input_signal=0, init_cond=None):
     # convert transfer function or continuous system to discrete system
     dt = t[1] - t[0]
     if dt > 0.02:
-        warnings.warn("sample time is big than 0.02s, which will lead to low accuracy",
+        warnings.warn("sample time is bigger than 0.02s, which will lead to low accuracy",
                       stacklevel=3)
-    if sys_.issiso():
+    if isinstance(sys_, TransferFunction):
         d_sys_ = continuous_to_discrete(tf2ss(sys_), dt)
     elif isinstance(sys_, StateSpace):
         if sys_.isctime():
@@ -145,14 +145,22 @@ def _any_input(sys_, t, input_signal=0, init_cond=None):
         raise TypeError("wrong type of arg")
 
     # check the input_signal validity
-    if isinstance(input_signal, (int, float)):
-        u = np.repeat(input_signal, len(t))
-    elif isinstance(input_signal, np.ndarray):
-        u = input_signal
-    elif d_sys_.inputs > 1 and isinstance(input_signal, tuple):
+    #SISO system
+    if d_sys_.issiso():
+        if isinstance(input_signal, np.ndarray):
+            if input_signal.shape == t.shape:
+                u = input_signal
+            else:
+                raise ValueError("input signal should have the same shape with t")
+        elif isinstance(input_signal, (list, tuple)):
+            u = np.array(input_signal)
+            if u.shape != t.shape:
+                raise ValueError("input signal should have the same shape with t")
+        else:
+            raise TypeError("wrong type is given.")
+    # MIMO system
+    if d_sys_.inputs > 1:
         raise NotImplemented("not support multi inputs right row")  # TODO: complete this
-    else:
-        raise TypeError("unexpected type of input_signal")
 
     if init_cond is None:
         init_cond = np.mat(np.zeros((d_sys_.A.shape[0], 1)))
@@ -162,11 +170,9 @@ def _any_input(sys_, t, input_signal=0, init_cond=None):
             raise ValueError("wrong dimension of init condition")
 
     x = _cal_x(d_sys_.A, d_sys_.B, len(t[1:]), init_cond, u)
-    y = []
-    for i, x_k in enumerate(x):
-        _ = d_sys_.C*x_k + d_sys_.D*u[i]
-        y.append(_)
-    if isinstance(sys_, SISO):
+    y = _cal_y(d_sys_.C, d_sys_.D, len(x), x, u)
+
+    if isinstance(sys_, TransferFunction):
         y = [_[0, 0] for _ in y]
     else:
         y = [np.asarray(_).reshape(-1) for _ in y]
@@ -184,11 +190,23 @@ def _cal_x(G, H, n, x_0, u):
     return x
 
 
+def _cal_y(C, D, n, x, u):
+    """
+    calculate system output
+    """
+    y = []
+    for i in range(n):
+        y_k = C*x[i] + D*u[i]
+        y.append(y_k)
+    return y
+
+
 def step(sys_, t=None, *, plot=True):
     if t is None:
         t = np.linspace(0, 10, 1000)
 
-    y, t = _any_input(sys_, t, 1)
+    u = np.ones(t.shape, dtype=int)
+    y, t = _any_input(sys_, t, u)
     if plot:
         plot_response_curve(y, t, "step response")
     return y, t
@@ -227,13 +245,13 @@ def any_input(sys_, t, input_signal=0, init_cond=None, *, plot=True):
 if __name__ == "__main__":
     import timeit
 
-    r1 = timeit.timeit("tc.step(system, np.linspace(0, 10, 10000),plot=False)",
+    r1 = timeit.timeit("tc.step(system, np.linspace(0, 10, 1000),plot=False)",
                        "import tcontrol as tc;import numpy as np;"
-                       "system = tc.tf([5, 25, 30], [1, 6, 10, 8])", number=3)
-    r2 = timeit.timeit("tc.impulse(system, np.linspace(0, 10, 10000),plot=False)",
+                       "system = tc.tf([5, 25, 30], [1, 6, 10, 8])", number=5)
+    r2 = timeit.timeit("tc.impulse(system, np.linspace(0, 10, 1000),plot=False)",
                        "import tcontrol as tc;import numpy as np;"
-                       "system = tc.tf([5, 25, 30], [1, 6, 10, 8])", number=3)
-    r3 = timeit.timeit("tc.ramp(system, np.linspace(0, 10, 10000), plot=False)",
+                       "system = tc.tf([5, 25, 30], [1, 6, 10, 8])", number=5)
+    r3 = timeit.timeit("tc.ramp(system, np.linspace(0, 10, 1000), plot=False)",
                        "import tcontrol as tc;import numpy as np;"
-                       "system = tc.tf([5, 25, 30], [1, 6, 10, 8])", number=3)
-    print(r1, r2, r3)
+                       "system = tc.tf([5, 25, 30], [1, 6, 10, 8])", number=5)
+    print("step: {0:.5f}secs impulse: {0:.5f}secs ramp: {0:.5f}secs".format(r1, r2, r3))

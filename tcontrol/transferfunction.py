@@ -4,12 +4,12 @@ import numpy as np
 import sympy as sym
 
 # TODO: trans function of MIMO
-# TODO: improve error msg of class SISO
+# TODO: improve error msg of class TransferFunction
 
-__all__ = ["SISO", "tf", "zpk", "ss2tf"]
+__all__ = ["TransferFunction", "tf", "zpk", "ss2tf"]
 
 
-class SISO(LinearTimeInvariant):
+class TransferFunction(LinearTimeInvariant):
     def __init__(self, num, den, *, dt=None):
         num = np.array(np.poly1d(num))
         den = np.array(np.poly1d(den))
@@ -27,32 +27,32 @@ class SISO(LinearTimeInvariant):
         return '0x{0:x}: {1:s}'.format(id(self), self.__str__())
 
     def __eq__(self, other):
-        if not isinstance(other, SISO):
+        if not isinstance(other, TransferFunction):
             return False
         return np.array_equal(self.num, other.num) and np.array_equal(self.den, other.den)
 
     def __neg__(self):
         num = deepcopy(self.num)
         num *= -1
-        return SISO(num, self.den, dt=self.dt)
+        return TransferFunction(num, self.den, dt=self.dt)
 
     def __add__(self, other):
         """
 
         :param other:
-        :type other: SISO
+        :type other: TransferFunction
         :return:
-        :rtype: SISO
+        :rtype: TransferFunction
         """
         dt = _get_dt(self, other)
 
         if np.array_equal(self.den, other.den):
-            return SISO(np.polyadd(self.num, other.num), self.den, dt=dt)
+            return TransferFunction(np.polyadd(self.num, other.num), self.den, dt=dt)
 
         den = np.convolve(self.den, other.den)
         num = np.polyadd(np.convolve(self.num, other.den), np.convolve(other.num, self.den))
 
-        return SISO(num, den, dt=dt)
+        return TransferFunction(num, den, dt=dt)
 
     __radd__ = __add__
 
@@ -65,9 +65,9 @@ class SISO(LinearTimeInvariant):
         """
 
         :param other:
-        :type other: SISO
+        :type other: TransferFunction
         :return:
-        :rtype: SISO
+        :rtype: TransferFunction
         """
         num = np.convolve(self.num, other.num)
         den = np.convolve(self.den, other.den)
@@ -76,7 +76,7 @@ class SISO(LinearTimeInvariant):
 
         dt = _get_dt(self, other)
 
-        return SISO(num, den, dt=dt)
+        return TransferFunction(num, den, dt=dt)
 
     __rmul__ = __mul__
 
@@ -90,7 +90,7 @@ class SISO(LinearTimeInvariant):
         """
 
         :param other: the transfer function of the feedback path
-        :type other: SISO | int
+        :type other: TransferFunction | int
         :param sign: if sign is 1 function will create the negative feedback.
                      otherwise the positive feedback
         :type sign: int
@@ -98,7 +98,7 @@ class SISO(LinearTimeInvariant):
         :rtype:
         """
         if other == 1:
-            other = SISO([1], [1], dt=self.dt)
+            other = TransferFunction([1], [1], dt=self.dt)
 
         dt = _get_dt(self, other)
 
@@ -106,16 +106,16 @@ class SISO(LinearTimeInvariant):
         den = np.polyadd(np.convolve(self.num, other.num),
                          np.convolve(self.den, other.den)*sign)
 
-        return SISO(num, den, dt=dt)
+        return TransferFunction(num, den, dt=dt)
 
 
 def _get_dt(sys1, sys2):
     """
 
     :param sys1:
-    :type sys1: SISO
+    :type sys1: TransferFunction
     :param sys2:
-    :type sys2: SISO
+    :type sys2: TransferFunction
     :return:
     :rtype:
     """
@@ -201,16 +201,16 @@ def tf(*args):
     elif length == 3:
         num, den, dt = args
     elif length == 1:
-        if isinstance(args[0], SISO):
+        if isinstance(args[0], TransferFunction):
             num = args[0].num
             den = args[0].den
             dt = args[0].dt
         else:
-            raise TypeError("type of arg should be SISO, got {0}".format(type(args[0])))
+            raise TypeError("type of arg should be TransferFunction, got {0}".format(type(args[0])))
 
     else:
         raise ValueError('1, 2 or 3 arg(s) expected. received {0}'.format(length))
-    sys_ = SISO(num, den, dt=dt)
+    sys_ = TransferFunction(num, den, dt=dt)
     return sys_
 
 
@@ -242,7 +242,7 @@ def zpk(z, p, k):
     den = np.array([1])
     for pi in p:
         den = np.convolve(den, np.array([1, -pi]))
-    return SISO(num, den)
+    return TransferFunction(num, den)
 
 
 def ss2tf(system):
@@ -260,4 +260,4 @@ def ss2tf(system):
     a = np.append(a, 1)
     a = a[::-1]
     b = np.asarray(C_[-1]).reshape(-1)
-    return SISO(b[::-1], a)
+    return TransferFunction(b[::-1], a)
