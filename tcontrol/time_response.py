@@ -119,7 +119,7 @@ def _any_input(sys_, t, input_signal=0, init_cond=None):
     """
 
     :param sys_: the system to be calculated
-    :type sys_: TransferFunction
+    :type sys_: TransferFunction | StateSpace
     :param t: time
     :type t: None | np.ndarray
     :param input_signal: a array contain the input signal
@@ -145,7 +145,7 @@ def _any_input(sys_, t, input_signal=0, init_cond=None):
         raise TypeError("wrong type of arg")
 
     # check the input_signal validity
-    #SISO system
+    # SISO system
     if d_sys_.issiso():
         if isinstance(input_signal, np.ndarray):
             if input_signal.shape == t.shape:
@@ -159,8 +159,8 @@ def _any_input(sys_, t, input_signal=0, init_cond=None):
         else:
             raise TypeError("wrong type is given.")
     # MIMO system
-    if d_sys_.inputs > 1:
-        raise NotImplemented("not support multi inputs right row")  # TODO: complete this
+    else:
+        raise NotImplemented("not support MIMO system right row")  # TODO: complete this
 
     if init_cond is None:
         init_cond = np.mat(np.zeros((d_sys_.A.shape[0], 1)))
@@ -172,8 +172,8 @@ def _any_input(sys_, t, input_signal=0, init_cond=None):
     x = _cal_x(d_sys_.A, d_sys_.B, len(t[1:]), init_cond, u)
     y = _cal_y(d_sys_.C, d_sys_.D, len(x), x, u)
 
-    if isinstance(sys_, TransferFunction):
-        y = [_[0, 0] for _ in y]
+    if sys_.issiso():
+        y = np.asarray(y).reshape(-1)
     else:
         y = [np.asarray(_).reshape(-1) for _ in y]
     return np.array(y), t
@@ -240,6 +240,7 @@ def any_input(sys_, t, input_signal=0, init_cond=None, *, plot=True):
     y, t = _any_input(sys_, t, input_signal, init_cond)
     if plot:
         plot_response_curve(y, t, "")
+    return y, t
 
 
 if __name__ == "__main__":
