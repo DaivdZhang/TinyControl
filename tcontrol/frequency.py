@@ -75,7 +75,7 @@ def bode(sys_, omega=None, *, plot=True):
             raise NotImplementedError
 
     if omega is None:
-        omega = np.logspace(-1, 3)
+        omega = np.logspace(-2, 2)
     omega = omega*1j
 
     num = np.poly1d(sys_.num)
@@ -83,14 +83,14 @@ def bode(sys_, omega=None, *, plot=True):
 
     A = 20*np.log(np.abs(num(omega)/den(omega)))
 
-    deg = np.zeros_like(omega)
+    deg = np.zeros(omega.shape)
     for i in sys_.zero():
         p = np.poly1d([1, -i])
         deg = deg + np.angle(p(omega), deg=True)
     for i in sys_.pole():
         p = np.poly1d([1, -i])
         deg = deg - np.angle(p(omega), deg=True)
-    phi = deg
+    phi = np.asarray(deg, dtype=float)
 
     if plot:
         plt.title("Bode Diagram")
