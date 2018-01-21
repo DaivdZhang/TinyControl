@@ -5,7 +5,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import widgets
 from functools import partial, reduce
-import operator
 
 __all__ = ["rlocus"]
 
@@ -31,12 +30,26 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
     :rtype: (np.ndarray, np.ndarray)
     """
     if not isinstance(sys_, TransferFunction) and isinstance(sys_, LinearTimeInvariant):
-        raise NotImplementedError('rlocus is only for TransferFunction system now')
+        raise NotImplementedError('rlocus is only for TransferFunction now.')
 
-    ol_gains = np.linspace(0, 100, 10000) if kvect is None else kvect
+    nump = np.poly1d(sys_.num)
+    denp = np.poly1d(sys_.den)
+    if kvect is None:
+        d = _cal_multi_roots(nump, denp)
+        k = -denp(d)/nump(d)
+        k = k[np.where(k >= 0)]
+        if k.dtype == complex:
+            k = k[np.where(k.imag == 0)]
+            k = np.real(k)
+        k = np.sort(k)
 
+        kvect = np.linspace(0, k[0], 100)
+        for i in range(1, len(k)):
+            kvect = np.append(kvect, np.linspace(k[i - 1], k[i], 100))
+        kvect = np.append(kvect, np.linspace(k[-1], k[-1]*50, 500))
+
+    ol_gains = kvect
     roots = _cal_roots(sys_, ol_gains)
-    roots = _sort_roots(roots)
 
     if plot:
         fig, ax = plt.subplots()
@@ -48,7 +61,9 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
         if 'ylim' in kwargs.keys():
             ax.set_ylim(*kwargs['xlim'])
 
-        ax.plot(roots.real, roots.imag, color='red')
+        for r in roots:
+            ax.plot(r.real, r.imag)
+
         p, z = pzmap(sys_, plot=False)
         ax.scatter(np.real(z), np.imag(z), s=50, marker='o', color='#069af3')
         ax.scatter(np.real(p), np.imag(p), s=50, marker='x', color='#fdaa48')
@@ -64,29 +79,36 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
 
 
 def _cal_roots(sys_, kvect):
-    def _cal_k_roots(k, nump, denp):
+    nump = np.poly1d(sys_.num)
+    denp = np.poly1d(sys_.den)
+    p = denp + kvect[0]*nump
+    order = p.order
+    roots = np.zeros((len(kvect), order), dtype=complex)
+    for i, k in enumerate(kvect):
         p_ = denp + k*nump
-        r = np.roots(p_)
-        return np.sort(r)
+        roots[i] = p_.roots
 
-    cal_roots_p = partial(_cal_k_roots, nump=np.poly1d(sys_.num), denp=np.poly1d(sys_.den))
-    roots = tuple(map(cal_roots_p, kvect))
-    roots = np.array(roots)
-    return roots
+    roots = np.sort(roots, axis=1)
+    return roots.T
 
 
-def _sort_roots(roots):
-    sorted_ = np.zeros_like(roots)
-    sorted_[0] = roots[0]
-    pre_row = sorted_[0]
-    for n, row in enumerate(roots[1:, :]):
-        distance_arr = [np.abs(i - pre_row) for i in row]
-        _ = [i.argmin() for i in distance_arr]
-        _ = sorted(zip(_, row), key=operator.itemgetter(0))
-        _ = [i[-1] for i in _]
-        sorted_[n + 1] = np.array(_)
-        pre_row = sorted_[n + 1, :]
-    return sorted_
+def _cal_multi_roots(nump, denp):
+    p = denp*np.polyder(nump) - np.polyder(denp)*nump
+    return p.roots
+
+
+# def _sort_roots(roots):
+#     sorted_ = np.zeros(roots.shape, dtype=complex)
+#     sorted_[0] = roots[0]
+#     pre_row = sorted_[0]
+#     for n, row in enumerate(roots[1:, :]):
+#         distance_arr = [np.abs(i - pre_row) for i in row]
+#         _ = [i.argmin() for i in distance_arr]
+#         _ = sorted(zip(_, row), key=operator.itemgetter(0))
+#         _ = [i[-1] for i in _]
+#         sorted_[n + 1] = np.array(_)
+#         pre_row = sorted_[n + 1, :]
+#     return sorted_
 
 
 def _search_k(event, sys_):
@@ -102,4 +124,18 @@ def _search_k(event, sys_):
     den = np.abs(sys_.zero() - s)
     f = partial(reduce, lambda x, y: x*y)
     k = f(num)/f(den)
-    print("K = {0:.5f} at {1:.5f}{2:.5f}j".format(k, s.real, s.imag))
+    if s.imag >= 0:
+        print("K = {0:.5f} at {1:.5f}+{2:.5f}j".format(k, s.real, s.imag))
+    else:
+        print("K = {0:.5f} at {1:.5f}{2:.5f}j".format(k, s.real, s.imag))
+
+
+if __name__ == "__main__":
+    import timeit
+
+    timer = timeit.Timer(
+        "rlocus(system, np.linspace(0, 100, 10000), xlim=[-5, 0.5], plot=False)",
+        "from tcontrol import tf, rlocus; system = tf([0.5, 1], [0.5, 1, 1]);"
+        "import numpy as np")
+    r_ = timer.repeat(3, 5)
+    print("{0:.3f} ms\n".format(sum(r_)/15*1000))
