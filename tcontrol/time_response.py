@@ -10,7 +10,7 @@ import warnings
 __all__ = ['impulse', 'step', 'ramp', 'any_input']
 
 
-def _get_cs(sys_, input_signal):
+def __get_cs(sys_, input_signal):
     """
 
     :param sys_:
@@ -34,7 +34,7 @@ def _get_cs(sys_, input_signal):
     return cs
 
 
-def _ilaplace(expr):
+def __ilaplace(expr):
     """
     Use:
         conduct the ilaplace transform
@@ -71,8 +71,8 @@ def _ilaplace(expr):
 
 def __any_input(sys_, t, input_signal='0'):
     t_ = sym.Symbol('t')
-    output = _get_cs(sys_, input_signal)
-    output = _ilaplace(output)
+    output = __get_cs(sys_, input_signal)
+    output = __ilaplace(output)
     output_func = sym.lambdify(t_, output, modules=['numpy'])
     y = output_func(t)
     return y, t
@@ -239,7 +239,7 @@ def ramp(sys_, t=None, *, plot=True):
 def any_input(sys_, t, input_signal=0, init_cond=None, *, plot=True):
     y, t = _any_input(sys_, t, input_signal, init_cond)
     if plot:
-        plot_response_curve(y, t, "")
+        plot_response_curve(y, t, "response")
     return y, t
 
 
