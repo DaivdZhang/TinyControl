@@ -284,7 +284,7 @@ def continuous_to_discrete(sys_, sample_time):
         return StateSpace(G, H, sys_.C.copy(), sys_.D.copy(), dt=sample_time)
     else:
         warnings.warn("the system is already a discrete system, no need to convert",
-                      RuntimeWarning, stacklevel=2)
+                      stacklevel=2)
         return sys_
 
 

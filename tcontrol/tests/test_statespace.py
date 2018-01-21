@@ -14,16 +14,16 @@ class TestStateSpace(TestCase):
         self.ss_ = StateSpace(self.A, self.B, self.C, self.D)
 
     def test___init__(self):
-        ss = StateSpace(self.A, self.B, self.C, self.D)
-        self.assertEqual(ss.A is self.A, True)
+        ss_ = StateSpace(self.A, self.B, self.C, self.D)
+        self.assertEqual(ss_.A is self.A, True)
         StateSpace(self.A, self.B, self.C, 0)
 
     def test___str__(self):
         print(self.ss_)
 
     def test___add__(self):
-        ss = StateSpace(self.A, self.B, self.C, self.D)
-        ss = ss + ss
+        ss_ = StateSpace(self.A, self.B, self.C, self.D)
+        ss_ = ss_ + ss_
 
     def test___mul__(self):
         # A_ = np.mat([[0, 1, 1, 1], [-4, -0.5, 1, 2], [0, 0, 0, -4], ])
@@ -31,7 +31,7 @@ class TestStateSpace(TestCase):
         print(self.ss_*StateSpace.dual_system(self.ss_))
 
     def test_pole(self):
-        ss = StateSpace(self.A, self.B, self.C, self.D)
+        ss_ = StateSpace(self.A, self.B, self.C, self.D)
         pass
 
     def test_controllability(self):
@@ -64,17 +64,17 @@ class TestStateSpace(TestCase):
         pass
 
     def test_tf2ss(self):
-        ss = tf2ss(self.tf_)
-        self.assertTrue(np.all(ss.A == self.A))
-        self.assertTrue(np.all(ss.B == self.B))
-        self.assertTrue(np.all(ss.C == self.C))
+        ss_ = tf2ss(self.tf_)
+        self.assertTrue(np.all(ss_.A == self.A))
+        self.assertTrue(np.all(ss_.B == self.B))
+        self.assertTrue(np.all(ss_.C == self.C))
 
     def test_ss2tf(self):
         self.assertEqual(ss2tf(self.ss_), self.tf_)
 
     def test_continuous_to_discrete(self):
         A = np.array([[0, 1], [0, -2]])
-        B = np.array([[0],[1]])
+        B = np.array([[0], [1]])
         sys_ = StateSpace(A, B, self.C, self.D)
         d_sys_ = continuous_to_discrete(sys_, 0.05)
         continuous_to_discrete(d_sys_, 0.01)
