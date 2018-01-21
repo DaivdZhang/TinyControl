@@ -241,18 +241,3 @@ def any_input(sys_, t, input_signal=0, init_cond=None, *, plot=True):
     if plot:
         plot_response_curve(y, t, "response")
     return y, t
-
-
-if __name__ == "__main__":
-    import timeit
-
-    r1 = timeit.timeit("tc.step(system, np.linspace(0, 10, 1000),plot=False)",
-                       "import tcontrol as tc;import numpy as np;"
-                       "system = tc.tf([5, 25, 30], [1, 6, 10, 8])", number=5)
-    r2 = timeit.timeit("tc.impulse(system, np.linspace(0, 10, 1000),plot=False)",
-                       "import tcontrol as tc;import numpy as np;"
-                       "system = tc.tf([5, 25, 30], [1, 6, 10, 8])", number=5)
-    r3 = timeit.timeit("tc.ramp(system, np.linspace(0, 10, 1000), plot=False)",
-                       "import tcontrol as tc;import numpy as np;"
-                       "system = tc.tf([5, 25, 30], [1, 6, 10, 8])", number=5)
-    print("step: {0:.5f}secs impulse: {0:.5f}secs ramp: {0:.5f}secs".format(r1, r2, r3))

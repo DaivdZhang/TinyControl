@@ -128,14 +128,3 @@ def _search_k(event, sys_):
         print("K = {0:.5f} at {1:.5f}+{2:.5f}j".format(k, s.real, s.imag))
     else:
         print("K = {0:.5f} at {1:.5f}{2:.5f}j".format(k, s.real, s.imag))
-
-
-if __name__ == "__main__":
-    import timeit
-
-    timer = timeit.Timer(
-        "rlocus(system, np.linspace(0, 100, 10000), xlim=[-5, 0.5], plot=False)",
-        "from tcontrol import tf, rlocus; system = tf([0.5, 1], [0.5, 1, 1]);"
-        "import numpy as np")
-    r_ = timer.repeat(3, 5)
-    print("{0:.3f} ms\n".format(sum(r_)/15*1000))
