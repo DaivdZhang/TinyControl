@@ -4,7 +4,7 @@ from tcontrol.statespace import StateSpace, continuous_to_discrete, tf2ss
 import numpy as np
 import sympy as sym
 from functools import partial
-from tcontrol.plot_func import plot_response_curve
+from tcontrol.plot_func import _plot_response_curve
 import warnings
 
 __all__ = ['impulse', 'step', 'ramp', 'any_input']
@@ -85,7 +85,7 @@ def __step(sys_, t=None, *, plot=True):
     y, _ = __any_input(sys_, t, 'step')
 
     if plot:
-        plot_response_curve(y, t, 'Step Response')
+        _plot_response_curve(y, t, 'Step Response')
 
     return y, t
 
@@ -97,7 +97,7 @@ def __impulse(sys_, t=None, *, plot=True):
     y, _ = __any_input(sys_, t, 'impulse')
 
     if plot:
-        plot_response_curve(y, t, 'Impulse Response')
+        _plot_response_curve(y, t, 'Impulse Response')
 
     return y, t
 
@@ -109,7 +109,7 @@ def __ramp(sys_, t=None, *, plot=True):
     y, _ = __any_input(sys_, t, 'ramp')
 
     if plot:
-        plot_response_curve(y, t, 'Ramp Response')
+        _plot_response_curve(y, t, 'Ramp Response')
 
     return y, t
 
@@ -208,7 +208,7 @@ def step(sys_, t=None, *, plot=True):
     u = np.ones(t.shape, dtype=int)
     y, t = _any_input(sys_, t, u)
     if plot:
-        plot_response_curve(y, t, "step response")
+        _plot_response_curve(y, t, "step response")
     return y, t
 
 
@@ -221,7 +221,7 @@ def impulse(sys_, t=None, *, plot=True):
     y, t = _any_input(sys_, t, u)
     y[0] = y[1]
     if plot:
-        plot_response_curve(y, t, "impulse response")
+        _plot_response_curve(y, t, "impulse response")
     return y, t
 
 
@@ -232,12 +232,12 @@ def ramp(sys_, t=None, *, plot=True):
     u = t
     y, t = _any_input(sys_, t, u)
     if plot:
-        plot_response_curve(y, t, "impulse response")
+        _plot_response_curve(y, t, "impulse response")
     return y, t
 
 
 def any_input(sys_, t, input_signal=0, init_cond=None, *, plot=True):
     y, t = _any_input(sys_, t, input_signal, init_cond)
     if plot:
-        plot_response_curve(y, t, "response")
+        _plot_response_curve(y, t, "response")
     return y, t

@@ -16,7 +16,7 @@ def figure(num=None, figsize=None, dpi=None, facecolor=None, edgecolor=None, fra
     return _plt.figure(num, figsize, dpi, facecolor, edgecolor, frameon, FigureClass, **kwargs)
 
 
-def plot_response_curve(y, t, title):
+def _plot_response_curve(y, t, title):
     _plt.title(title)
     _plt.xlabel('t/s')
     _plt.ylabel('Amplitude')

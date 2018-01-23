@@ -206,7 +206,8 @@ def tf(*args):
             den = args[0].den
             dt = args[0].dt
         else:
-            raise TypeError("type of arg should be TransferFunction, got {0}".format(type(args[0])))
+            raise TypeError(
+                "type of arg should be TransferFunction, got {0}".format(type(args[0])))
 
     else:
         raise ValueError('1, 2 or 3 arg(s) expected. received {0}'.format(length))
