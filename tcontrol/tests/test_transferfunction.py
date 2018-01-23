@@ -3,7 +3,7 @@ from tcontrol.transferfunction import TransferFunction, tf, zpk
 import numpy as np
 
 
-class TestSISO(TestCase):
+class TestTransferFunction(TestCase):
     def setUp(self):
         self.s1 = TransferFunction([1, 1], [1, 0, 1])
         self.s2 = TransferFunction([1, 0, 1], [1, 0, 0, 1])
@@ -49,8 +49,6 @@ class TestSISO(TestCase):
         s = TransferFunction([1, 2], [1, 2, 1])
         self.assertEqual((s.zero() == np.roots([1, 2])).all(), True)
 
-
-class TestTransferFunction(TestCase):
     def test_tf(self):
         self.assertEqual(tf([1], [1, 0]), TransferFunction([1], [1, 0]))
         self.assertEqual(tf(TransferFunction([1], [1, 0])), TransferFunction([1], [1, 0]))
