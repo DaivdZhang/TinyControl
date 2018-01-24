@@ -18,9 +18,8 @@ def run1():
 # run rlocus
 def run2():
     timer = timeit.Timer(
-        "rlocus(system, np.linspace(0, 100, 10000), xlim=[-5, 0.5], plot=False)",
-        "from tcontrol import tf, rlocus; system = tf([0.5, 1], [0.5, 1, 1]);"
-        "import numpy as np")
+        "rlocus(system, xlim=[-5, 0.5], plot=False)",
+        "from tcontrol import tf, rlocus; system = tf([0.5, 1], [0.5, 1, 1])")
     r1 = timer.timeit(100)
     print("{0:.5f} ms\n".format(r1*10))
 
