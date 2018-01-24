@@ -1,7 +1,7 @@
 from tcontrol.lti import LinearTimeInvariant
-from copy import deepcopy
 import numpy as np
 import sympy as sym
+import numbers
 
 # TODO: trans function of MIMO
 # TODO: improve error msg of class TransferFunction
@@ -20,11 +20,11 @@ class TransferFunction(LinearTimeInvariant):
         self.den = den
 
     def __str__(self):
-        gs, _, _ = _siso_to_symbol(self.num, self.den)
-        return gs.__str__()
+        gs, *_ = _siso_to_symbol(self.num, self.den)
+        return str(gs)
 
     def __repr__(self):
-        return '0x{0:x}: {1:s}'.format(id(self), self.__str__())
+        return '0x{0:x}:\n {1:s}'.format(id(self), str(self))
 
     def __eq__(self, other):
         if not isinstance(other, TransferFunction):
@@ -32,18 +32,20 @@ class TransferFunction(LinearTimeInvariant):
         return np.array_equal(self.num, other.num) and np.array_equal(self.den, other.den)
 
     def __neg__(self):
-        num = deepcopy(self.num)
-        num *= -1
+        num = -1 * self.num
         return TransferFunction(num, self.den, dt=self.dt)
 
     def __add__(self, other):
         """
 
         :param other:
-        :type other: TransferFunction
+        :type other: TransferFunction | number.Real
         :return:
         :rtype: TransferFunction
         """
+        if isinstance(other, numbers.Real):
+            other = TransferFunction([other], [1])
+
         dt = _get_dt(self, other)
 
         if np.array_equal(self.den, other.den):
@@ -65,10 +67,13 @@ class TransferFunction(LinearTimeInvariant):
         """
 
         :param other:
-        :type other: TransferFunction
+        :type other: TransferFunction | numbers.Real
         :return:
         :rtype: TransferFunction
         """
+        if isinstance(other, numbers.Real):
+            return TransferFunction(self.num*other, self.den, dt=self.dt)
+
         num = np.convolve(self.num, other.num)
         den = np.convolve(self.den, other.den)
 
