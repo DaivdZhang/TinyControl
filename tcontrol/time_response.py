@@ -4,7 +4,7 @@ from tcontrol.statespace import StateSpace, continuous_to_discrete, tf2ss
 import numpy as np
 import sympy as sym
 from functools import partial
-from tcontrol.plot_func import _plot_response_curve
+from tcontrol.plot_utility import _plot_response_curve
 import warnings
 
 __all__ = ['impulse', 'step', 'ramp', 'any_input']
