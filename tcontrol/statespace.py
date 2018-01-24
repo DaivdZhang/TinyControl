@@ -212,7 +212,7 @@ class StateSpace(LinearTimeInvariant):
         :return: the matrix X
         :rtype: np.matrix
         """
-        raise NotImplemented
+        raise NotImplementedError
 
 
 def ss(*args, **kwargs):
