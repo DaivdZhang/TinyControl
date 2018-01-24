@@ -1,10 +1,9 @@
 from tcontrol.lti import LinearTimeInvariant
 from tcontrol.transferfunction import TransferFunction
 from tcontrol.pzmap import pzmap
+from tcontrol.plot_utility import AnnotatedPoint, AttachedCursor
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib import widgets
-from functools import partial, reduce
 
 __all__ = ["rlocus"]
 
@@ -61,19 +60,22 @@ def rlocus(sys_, kvect=None, *, plot=True, **kwargs):
         if 'ylim' in kwargs.keys():
             ax.set_ylim(*kwargs['xlim'])
 
+        line = []
         for r in roots:
-            ax.plot(r.real, r.imag)
+            l, *_ = ax.plot(r.real, r.imag, picker=2)
+            line.append(l)
 
         p, z = pzmap(sys_, plot=False)
         ax.scatter(np.real(z), np.imag(z), s=50, marker='o', color='#069af3')
         ax.scatter(np.real(p), np.imag(p), s=50, marker='x', color='#fdaa48')
         ax.grid()
         plt.title('Root Locus')
-        cursor = widgets.Cursor(ax, useblit=True, linewidth=1, linestyle='--')
 
-        fig.canvas.mpl_connect("button_release_event", partial(_search_k, sys_=sys_))
+        cursor = RlocusAttachedCursor(ax, fig, line, sys_=sys_, linestyle='--')
+        cursor.connect_event("pick_event", cursor)
 
         plt.show()
+        cursor.disconnect()
 
     return roots, kvect
 
@@ -97,34 +99,70 @@ def _cal_multi_roots(nump, denp):
     return p.roots
 
 
-# def _sort_roots(roots):
-#     sorted_ = np.zeros(roots.shape, dtype=complex)
-#     sorted_[0] = roots[0]
-#     pre_row = sorted_[0]
-#     for n, row in enumerate(roots[1:, :]):
-#         distance_arr = [np.abs(i - pre_row) for i in row]
-#         _ = [i.argmin() for i in distance_arr]
-#         _ = sorted(zip(_, row), key=operator.itemgetter(0))
-#         _ = [i[-1] for i in _]
-#         sorted_[n + 1] = np.array(_)
-#         pre_row = sorted_[n + 1, :]
-#     return sorted_
+class RlocusAnnotatedPoint(AnnotatedPoint):
+    def __init__(self, ax, fig, sys_):
+        super().__init__(ax, fig)
+        self.ax.autoscale(False)
+        self.sys_ = sys_
+        self.anno.remove()
+        self.anno = None
+
+    def __call__(self, event):
+        """
+
+        :param event: A matplotlib event
+        :type event: matplotlib.back_end.Event
+        :return: None
+        :rtype: None
+        """
+        if event.name == "button_press_event":
+            self.handle_click(event)
+            event.canvas.draw()
+        else:
+            return None
+
+    def handle_click(self, event):
+        """
+
+        :param event: A matplotlib event
+        :type event: matplotlib.back_end.Event
+        :return: None
+        :rtype: None
+        """
+        if event.inaxes is None:
+            return None
+        if self.anno is None:
+            self.anno = self.init_annotate()
+
+        s = complex(event.xdata, event.ydata)
+        num = np.abs(self.sys_.pole() - s)
+        den = np.abs(self.sys_.zero() - s)
+        k = np.prod(num)/np.prod(den)
+
+        if s.imag >= 0:
+            text_str = "$K={0:.5f}$\n$s={1:.5f}+{2:.5f}j$".format(k, s.real, s.imag)
+        else:
+            text_str = "$K={0:.5f}$\n$s={1:.5f}{2:.5f}j$".format(k, s.real, s.imag)
+        self.anno.xy = (event.xdata, event.ydata)
+        self.anno.set_text(text_str)
+        self.anno.set_x(event.xdata + 0.2)
+        self.anno.set_y(event.ydata + 0.2)
+
+        if self.dot is not None:
+            self.dot.remove()
+        self.dot = self.ax.scatter(event.xdata, event.ydata, marker='+', color='r', s=62)
 
 
-def _search_k(event, sys_):
-    """
+class RlocusAttachedCursor(AttachedCursor):
+    def __init__(self, ax, fig, line,*, sys_, **lineprops):
+        super().__init__(ax, fig, **lineprops)
+        self.ap = RlocusAnnotatedPoint(self.ax, self.ax.figure, sys_)
+        self.line = line
 
-    :param event:
-    :type event: matplotlib.backend_bases.MouseEvent
-    :param sys_:
-    :type sys_: TransferFunction
-    """
-    s = complex(event.xdata, event.ydata)
-    num = np.abs(sys_.pole() - s)
-    den = np.abs(sys_.zero() - s)
-    f = partial(reduce, lambda x, y: x*y)
-    k = f(num)/f(den)
-    if s.imag >= 0:
-        print("K = {0:.5f} at {1:.5f}+{2:.5f}j".format(k, s.real, s.imag))
-    else:
-        print("K = {0:.5f} at {1:.5f}{2:.5f}j".format(k, s.real, s.imag))
+    def __call__(self, event):
+        if event.name == "pick_event":
+            if event.artist not in self.line:
+                return None
+            self.ap(event.mouseevent)
+        else:
+            return None
