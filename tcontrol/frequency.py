@@ -95,7 +95,7 @@ def bode(sys_, omega=None, *, plot=True):
     if plot:
         plt.title("Bode Diagram")
 
-        plt.subplot(2, 1, 1)
+        ax1 = plt.subplot(2, 1, 1)
         plt.axvline(x=0, color='black')
         plt.axhline(y=0, color='black')
         plt.xscale('log')
@@ -107,7 +107,7 @@ def bode(sys_, omega=None, *, plot=True):
         plt.grid(which='both')
         plt.ylabel('Magnitude/dB')
 
-        plt.subplot(2, 1, 2)
+        plt.subplot(2, 1, 2, sharex=ax1)
         plt.axvline(x=0, color='black')
         plt.axhline(y=0, color='black')
         plt.xscale('log')
